@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Templates</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            padding-top: 2rem;
+        }
+        .table {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .page-link {
+            color: #007bff;
+        }
+        .page-link:hover {
+            color: #0056b3;
+        }
+    </style>
+<script src="/js/navbar.js"></script>
+
+</head>
+<body>
+
+
+
+<script>
+    // Immediately-invoked function to check user authentication status
+    (function() {
+      fetch('/auth/check')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.isAuthenticated) {
+            // Redirect to the login page if not authenticated
+            window.location.href = '/login';
+          }
+        })
+        .catch(error => console.error('Error checking auth status:', error));
+    })();
+  </script>
+
+<div class="container">
+    <h1 class="my-4">Email Templates</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Template Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="templateList"></tbody>
+    </table>
+    <nav aria-label="Page navigation">
+        <ul id="pagination" class="pagination justify-content-center">
+            <!-- Pagination buttons will be added here -->
+        </ul>
+    </nav>
+</div>
+
+<script src="js/templates.js"></script>
+</body>
+</html>

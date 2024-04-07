@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Campaign Manager</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+
+<script src="/js/navbar.js"></script>
+
+
+</head>
+<body>
+
+    <script>
+        // Immediately-invoked function to check user authentication status
+        (function() {
+          fetch('/auth/check')
+            .then(response => response.json())
+            .then(data => {
+              if (!data.isAuthenticated) {
+                // Redirect to the login page if not authenticated
+                window.location.href = '/login';
+              }
+            })
+            .catch(error => console.error('Error checking auth status:', error));
+        })();
+      </script>
+      
+    
+
+
+<div class="container" style="text-align:center">
+    <h1>Welcome to Campaign Manager.</h1>
+    <p class="lead">Deploy emails or manage your account.</p>
+    <div class="text-center mt-4">
+        <a href="templates.html" class="btn btn-primary mr-2">Browse Templates</a>
+    </div>
+</div>
+
+
+</body>
+</html>
