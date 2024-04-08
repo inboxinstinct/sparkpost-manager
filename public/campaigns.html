@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Campaigns</h2>
+        <h6 class="my-4">Campaigns</h6>
         <ul id="campaignsList" class="list-group mt-3">
             <!-- Campaigns will be listed here -->
         </ul>
@@ -30,8 +30,8 @@
                     const sentDate = new Date(campaign.createdAt);
                     const formattedDate = sentDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
                     
-                    // Include both the subject and the formatted timestamp
-                    item.innerHTML = `<strong>${campaign.subject}</strong> - <a href="campaign-details.html?id=${campaign._id}">View Details</a> <span class="text-muted" style="float:right;">${formattedDate}</span>`;
+                    // Swap the position of the timestamp and the "View Details" link
+                    item.innerHTML = `<strong>${campaign.subject}</strong> - <span class="text-muted">${formattedDate}</span> <a style="float: right" href="campaign-details.html?campaignId=${campaign.campaignId}">View Details</a>`;
                     list.appendChild(item);
                 });
             })

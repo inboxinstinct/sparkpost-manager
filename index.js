@@ -10,7 +10,7 @@ const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 const app = express();
 const db = new sqlite3.Database('./users.db');
 
-
+// {{ render_snippet( "unsubscribe" ) }}
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -77,13 +77,28 @@ app.post('/campaigns', requireAuth, async (req, res) => {
   // Route to get a specific campaign
   app.get('/campaigns/:id', async (req, res) => {
     try {
-      const campaign = await Campaign.findById(req.params.id);
-      if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
-      res.json(campaign);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+        const campaign = await Campaign.findOne({ campaignId: req.params.campaignId });
+        if (!campaign) {
+            return res.status(404).send('Campaign not found');
+        }
+        res.json(campaign);
+    } catch (error) {
+        res.status(500).send(error.toString());
     }
   });
+
+  app.get('/campaigns/details/:campaignId', async (req, res) => {
+    try {
+        const campaign = await Campaign.findOne({ campaignId: req.params.campaignId });
+        if (!campaign) {
+            return res.status(404).send('Campaign not found');
+        }
+        res.json(campaign);
+    } catch (error) {
+        res.status(500).send(error.toString());
+    }
+});
+
 
 // Middleware to check if the user is logged in
 
@@ -158,6 +173,29 @@ app.get('/recipient-lists', requireAuth, async (req, res) => {
         res.status(200).json({ success: true, data: response.results });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/campaigns/export/:id/:dataType', requireAuth, async (req, res) => {
+    try {
+        const { id, dataType } = req.params;
+        const campaign = await Campaign.findById(id);
+        if (!campaign) return res.status(404).send('Campaign not found');
+
+        const data = campaign[dataType];
+        if (!data) return res.status(404).send('Data type not found');
+
+        // Convert data array to CSV
+        let csv = 'Email\n';
+        data.forEach(item => {
+            csv += `${item}\n`;
+        });
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment(`${dataType}.csv`);
+        return res.send(csv);
+    } catch (err) {
+        res.status(500).send('Server error');
     }
 });
 

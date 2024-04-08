@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 color: #343a40;
                 margin: 0 10px; /* Adjust spacing between links */
             }
-            .container {
+            #customNavbar .container {
                 padding-top: 2rem;
             }
             #customNavbar .nav-link:hover {

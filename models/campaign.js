@@ -13,9 +13,15 @@ const campaignSchema = new mongoose.Schema({
     bounces: Number,
     successfulDeliveries: Number,
   },
-  openers: [{ type: String, default: [] }], // List of email addresses
-  clickers: [{ type: String, default: [] }], // List of email addresses
-  bouncers: [{ type: String, default: [] }], // List of email addresses
+  openers: [{ type: String, default: [] }],
+  clickers: [{ type: String, default: [] }], 
+  bouncers: [{
+    email: String, default: [],
+    bounceCode: String, default: []
+  }], 
+  delivered: [{ type: String, default: [] }],
+  unsubscribed: [{ type: String, default: [] }],
+  complaints: [{ type: String, default: [] }],
   createdAt: { type: Date, default: Date.now },
 });
 
