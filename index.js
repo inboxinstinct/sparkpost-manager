@@ -176,28 +176,34 @@ app.get('/recipient-lists', requireAuth, async (req, res) => {
     }
 });
 
-app.get('/campaigns/export/:id/:dataType', requireAuth, async (req, res) => {
+function arrayToCSV(data) {
+    const csvRows = data.map(row => (typeof row === 'string' ? row : row.email).replace(/"/g, '""')); // Assuming each row is a simple email string or an object with an email property
+    return `"${csvRows.join('"\n"')}"`; // Quote strings and separate by newline
+}
+
+app.get('/campaigns/export/:campaignId/:dataType', requireAuth, async (req, res) => {
     try {
-        const { id, dataType } = req.params;
-        const campaign = await Campaign.findById(id);
-        if (!campaign) return res.status(404).send('Campaign not found');
+        const { campaignId, dataType } = req.params;
+        const campaign = await Campaign.findOne({ campaignId: campaignId });
+        if (!campaign) {
+            return res.status(404).send('Campaign not found');
+        }
 
         const data = campaign[dataType];
-        if (!data) return res.status(404).send('Data type not found');
+        if (!data) {
+            return res.status(404).send('Data type not found');
+        }
 
-        // Convert data array to CSV
-        let csv = 'Email\n';
-        data.forEach(item => {
-            csv += `${item}\n`;
-        });
-
-        res.header('Content-Type', 'text/csv');
-        res.attachment(`${dataType}.csv`);
-        return res.send(csv);
+        const csvData = arrayToCSV(data);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${dataType}-${campaignId}.csv"`);
+        res.send(csvData);
     } catch (err) {
         res.status(500).send('Server error');
     }
 });
+
+
 
 
 app.post('/register', async (req, res) => {

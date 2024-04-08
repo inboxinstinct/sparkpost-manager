@@ -195,11 +195,10 @@
         });
 });
 
-        function exportData(dataType) {
-    // Assuming there's an endpoint to handle export
+function exportData(dataType) {
+    const campaignId = document.getElementById('campaignId').textContent; // Make sure this ID is correctly populated
     window.location.href = `/campaigns/export/${campaignId}/${dataType}`;
 }
-
 
     </script>
 </body>
