@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 
 const campaignSchema = new mongoose.Schema({
+  campaignId: { type: Number, required: true, unique: true },
   subject: { type: String, required: true },
   fromName: { type: String, required: true },
   fromEmail: { type: String, required: true },

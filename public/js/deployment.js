@@ -61,6 +61,26 @@ document.getElementById('sendEmail').addEventListener('click', function() {
 });
 
 
+
+function createCampaignRecord(campaignDetails) {
+    fetch('/campaigns', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(campaignDetails),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Campaign record created:', data);
+        // Handle success or failure
+    })
+    .catch(error => {
+        console.error('Error creating campaign record:', error);
+    });
+}
+
+/* 
 function confirmSend() {
     const recipientListId = document.getElementById('recipientList').value;
     const templateId = new URLSearchParams(window.location.search).get('templateId');
@@ -104,24 +124,7 @@ function confirmSend() {
         }
     });
 }
-
-function createCampaignRecord(campaignDetails) {
-    fetch('/campaigns', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(campaignDetails),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Campaign record created:', data);
-        // Handle success or failure
-    })
-    .catch(error => {
-        console.error('Error creating campaign record:', error);
-    });
-}
+ */
 
 function confirmSend() {
     const recipientListId = document.getElementById('recipientList').value;
@@ -130,8 +133,7 @@ function confirmSend() {
     const emailFromName = document.getElementById('emailFromName').textContent;
     const emailFromEmail = document.getElementById('emailFromEmail').textContent;
     const iframe = document.getElementById('emailPreviewFrame');
-    const htmlContent = iframe.contentWindow.document.body.innerHTML; // Extract HTML content
-    
+    const htmlContent = iframe.contentWindow.document.body.innerHTML;
 
     fetch('/send-email', {
         method: 'POST',
@@ -149,13 +151,17 @@ function confirmSend() {
             alert('Email sent successfully!');
             $('#confirmationModal').modal('hide');
 
-            // Now, save the campaign details
+            // Use the campaignIdStr from the response here
+            const campaignIdStr = data.campaignId;
+
+            // Now, save the campaign details with the campaignIdStr
             fetch('/save-campaign', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    campaignId: campaignIdStr, // Use the campaign ID here
                     subject: emailSubject,
                     fromName: emailFromName,
                     fromEmail: emailFromEmail,

@@ -196,10 +196,11 @@ app.post('/register', async (req, res) => {
 // Example in your Node.js server code
 app.post('/save-campaign', async (req, res) => {
     try {
-        const { subject, fromName, fromEmail, htmlContent, templateId, recipientListId, } = req.body;
+        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, } = req.body;
 
 
         const campaign = new Campaign({
+            campaignId,
             subject,
             fromName,
             fromEmail,
@@ -227,24 +228,24 @@ async function getNextCampaignId() {
     return counter.seq;
   }
 
-app.post('/send-email', requireAuth, async (req, res) => {
+  app.post('/send-email', requireAuth, async (req, res) => {
     try {
-        const { templateId, recipientListId } = req.body; // Expecting the template ID and recipient list ID in the request body
-
+        const { templateId, recipientListId } = req.body;
         const newCampaignId = await getNextCampaignId();
-        const campaignIdStr = newCampaignId.toString(); // Convert to string for SparkPost
+        const campaignIdStr = newCampaignId.toString();
 
         const response = await client.transmissions.send({
             content: {
                 template_id: templateId,
             },
             recipients: {
-                list_id: recipientListId, // Use the recipient list ID here
+                list_id: recipientListId,
             },
             campaign_id: campaignIdStr,
         });
 
-        res.status(200).json({ success: true, data: response });
+        // Include campaignIdStr in the response
+        res.status(200).json({ success: true, data: response, campaignId: campaignIdStr });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
