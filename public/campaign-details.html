@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campaign Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/js/navbar.js"></script>
+    <style>.stats-section {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-section h3 {
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+    
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eaeaea;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stat-item span {
+        font-size: 16px;
+        color: #666;
+    }
+    
+    .stat-item a {
+        font-size: 14px;
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .stat-item a:hover {
+        text-decoration: underline;
+    }
+    .campaign-details {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+    .btn-back {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        background-color: #0056b3;
+    }
+
+    .campaign-info div {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #666;
+    }
+
+    .campaign-info strong {
+        color: #333;
+    }
+
+    .iframe-container {
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;   
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    }
+
+    iframe {
+        width: 100%;
+        height: 500px;
+        border: none;
+    }
+
+    @media (max-width: 768px) {
+        iframe {
+            height: 300px;
+        }
+    }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="campaign-details">
+            <div class="campaign-info">
+                <div><strong>Subject Line:</strong> <span id="campaignSubject"></span></div>
+                <div><strong>From:</strong> <span id="campaignFrom"></span></div>
+                <div><strong>Sent:</strong> <span id="campaignSent"></span></div>
+                <div><strong>Campaign ID:</strong> <span id="campaignId"></span></div>
+            </div>
+        </div>
+<!-- Inside <div class="container mt-5">, after the existing content -->
+    <div class="stats-section">
+        <div class="stat-item">
+            <span>Openers: <span id="openersCount">0</span></span>
+            <a href="#" onclick="exportData('openers')">Export</a>
+        </div>
+        <div class="stat-item">
+            <span>Clickers: <span id="clickersCount">0</span></span>
+            <a href="#" onclick="exportData('clickers')">Export</a>
+        </div>
+        <div class="stat-item">
+            <span>Bouncers: <span id="bouncersCount">0</span></span>
+            <a href="#" onclick="exportData('bouncers')">Export</a>
+        </div>
+        <div class="stat-item">
+            <span>Delivered: <span id="deliveredCount">0</span></span>
+            <a href="#" onclick="exportData('delivered')">Export</a>
+        </div>
+        <div class="stat-item">
+            <span>Unsubscribed: <span id="unsubscribedCount">0</span></span>
+            <a href="#" onclick="exportData('unsubscribed')">Export</a>
+        </div>
+        <div class="stat-item">
+            <span>Complaints: <span id="complaintsCount">0</span></span>
+            <a href="#" onclick="exportData('complaints')">Export</a>
+        </div>
+    </div>
+    
+    <div class="iframe-container">
+        <iframe id="campaignIframe" src="about:blank"></iframe>
+    </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const campaignId = params.get('campaignId');
+
+    if (!campaignId) {
+        document.body.innerHTML = '<p>Error: Campaign ID is missing.</p>';
+        return;
+    }
+
+    fetch(`/campaigns/details/${campaignId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(campaign => {
+            if (!campaign) {
+                throw new Error('Campaign data is empty');
+            }
+            document.getElementById('campaignSubject').textContent = campaign.subject || 'No Subject';
+            document.getElementById('campaignFrom').textContent = `${campaign.fromName || 'Unknown'} (${campaign.fromEmail || 'No Email'})`;
+            document.getElementById('campaignId').textContent = campaignId; // Set the campaign ID
+
+            const sentDate = new Date(campaign.createdAt);
+            document.getElementById('campaignSent').textContent = sentDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+
+                    // After setting the campaign content
+                    document.getElementById('openersCount').textContent = campaign.openers.length;
+                    document.getElementById('clickersCount').textContent = campaign.clickers.length;
+                    document.getElementById('bouncersCount').textContent = campaign.bouncers.length;
+                    document.getElementById('deliveredCount').textContent = campaign.delivered.length;
+                    document.getElementById('unsubscribedCount').textContent = campaign.unsubscribed.length;
+                    document.getElementById('complaintsCount').textContent = campaign.complaints.length;
+
+
+                  /*  if (campaign.stats) {
+                        Object.entries(campaign.stats).forEach(([key, value]) => {
+                            const item = document.createElement('li');
+                            item.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
+                            statsList.appendChild(item);
+                        });
+                    } */
+
+            document.getElementById('campaignIframe').srcdoc = campaign.htmlContent || 'No content available';
+        })
+        .catch(error => {
+            console.error('Error loading campaign details:', error);
+            document.body.innerHTML = `<p>Error loading campaign details: ${error.message}</p>`;
+        });
+});
+
+function exportData(dataType) {
+    const campaignId = document.getElementById('campaignId').textContent; // Make sure this ID is correctly populated
+    window.location.href = `/campaigns/export/${campaignId}/${dataType}`;
+}
+
+    </script>
+</body>
+</html>

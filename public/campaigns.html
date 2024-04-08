@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campaigns</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/js/navbar.js"></script>
+</head>
+<body>
+
+    <h6 class="my-4" style="text-align: center;">Campaign Archive</h6>
+    <hr>
+    <div class="container mt-5">
+
+
+        <ul id="campaignsList" class="list-group mt-3">
+            <!-- Campaigns will be listed here -->
+        </ul>
+    </div>
+
+    <script>
+        fetch('/campaigns')
+            .then(response => response.json())
+            .then(campaigns => {
+                // Sort campaigns by createdAt in descending order
+                campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                const list = document.getElementById('campaignsList');
+                campaigns.forEach(campaign => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    
+                    // Format createdAt timestamp
+                    const sentDate = new Date(campaign.createdAt);
+                    const formattedDate = sentDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+                    
+                    // Swap the position of the timestamp and the "View Details" link
+                    item.innerHTML = `<strong>${campaign.subject}</strong> - <span class="text-muted">${formattedDate}</span> <a style="float: right" href="campaign-details.html?campaignId=${campaign.campaignId}">View Details</a>`;
+                    list.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error loading campaigns:', error));
+    </script>
+</body>
+</html>
