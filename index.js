@@ -5,11 +5,14 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-
+const router = express.Router();
 const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 const app = express();
 const db = new sqlite3.Database('./users.db');
 
+
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -19,6 +22,68 @@ app.use(session({
     saveUninitialized: false,
     cookie: { secure: 'auto' }
 }));
+
+const requireAuth = (req, res, next) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    next();
+};
+
+const Counter = require('./models/Counter');
+const Campaign = require('./models/Campaign');
+
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+
+  // Route to create a new campaign
+app.post('/campaigns', requireAuth, async (req, res) => {
+    try {
+        // Create a new campaign using the request body
+        const newCampaign = new Campaign({
+            subject: req.body.subject,
+            fromName: req.body.fromName,
+            fromEmail: req.body.fromEmail,
+            htmlContent: req.body.htmlContent,
+            stats: req.body.stats,
+            // Add any other fields you expect to receive and store
+        });
+
+        // Save the new campaign to the database
+        const savedCampaign = await newCampaign.save();
+
+        // Respond with the saved campaign
+        res.status(201).json(savedCampaign);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+  
+  // Route to get all campaigns
+  app.get('/campaigns', async (req, res) => {
+    try {
+      const campaigns = await Campaign.find();
+      res.json(campaigns);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+  // Route to get a specific campaign
+  app.get('/campaigns/:id', async (req, res) => {
+    try {
+      const campaign = await Campaign.findById(req.params.id);
+      if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
+      res.json(campaign);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
 // Middleware to check if the user is logged in
 
@@ -36,12 +101,7 @@ app.get('/auth/userinfo', (req, res) => {
 });
 
 
-const requireAuth = (req, res, next) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    next();
-};
+
 
 app.get('/login', (req, res) => {
     // Serve the login page
@@ -133,11 +193,46 @@ app.post('/register', async (req, res) => {
     });
 });
 
+// Example in your Node.js server code
+app.post('/save-campaign', async (req, res) => {
+    try {
+        const { subject, fromName, fromEmail, htmlContent, templateId, recipientListId, } = req.body;
 
+
+        const campaign = new Campaign({
+            subject,
+            fromName,
+            fromEmail,
+            htmlContent,
+            templateId,
+            recipientListId,
+            // sentDate is automatically set to now
+        });
+
+        await campaign.save(); // Save the campaign to MongoDB
+
+        res.status(200).json({ success: true, message: "Campaign saved successfully" });
+    } catch (err) {
+        console.error("Failed to save campaign", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+async function getNextCampaignId() {
+    const counterName = 'campaignId'; // Name of the counter for campaigns
+    const update = { $inc: { seq: 1 } }; // Increment sequence
+    const options = { new: true, upsert: true, setDefaultsOnInsert: true };
+    
+    const counter = await Counter.findByIdAndUpdate(counterName, update, options);
+    return counter.seq;
+  }
 
 app.post('/send-email', requireAuth, async (req, res) => {
     try {
         const { templateId, recipientListId } = req.body; // Expecting the template ID and recipient list ID in the request body
+
+        const newCampaignId = await getNextCampaignId();
+        const campaignIdStr = newCampaignId.toString(); // Convert to string for SparkPost
 
         const response = await client.transmissions.send({
             content: {
@@ -146,6 +241,7 @@ app.post('/send-email', requireAuth, async (req, res) => {
             recipients: {
                 list_id: recipientListId, // Use the recipient list ID here
             },
+            campaign_id: campaignIdStr,
         });
 
         res.status(200).json({ success: true, data: response });

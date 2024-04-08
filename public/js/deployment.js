@@ -60,9 +60,15 @@ document.getElementById('sendEmail').addEventListener('click', function() {
     }
 });
 
+
 function confirmSend() {
     const recipientListId = document.getElementById('recipientList').value;
     const templateId = new URLSearchParams(window.location.search).get('templateId');
+    const emailSubject = document.getElementById('emailSubject').textContent;
+    const emailFromName = document.getElementById('emailFromName').textContent;
+    const emailFromEmail = document.getElementById('emailFromEmail').textContent;
+    const iframe = document.getElementById('emailPreviewFrame');
+    const htmlContent = iframe.contentWindow.document.body.innerHTML; // Extract HTML content
 
     fetch('/send-email', {
         method: 'POST',
@@ -79,8 +85,101 @@ function confirmSend() {
         if (data.success) {
             alert('Email sent successfully!');
             $('#confirmationModal').modal('hide');
+            // After successful email send, post to campaigns to create a new record
+            createCampaignRecord({
+                subject: emailSubject,
+                fromName: emailFromName,
+                fromEmail: emailFromEmail,
+                // Assuming you can get these details or set initial values
+                htmlContent: htmlContent, // You might need to adjust this
+                stats: {
+                    opens: 0,
+                    clicks: 0,
+                    bounces: 0,
+                    successfulDeliveries: 0,
+                },
+            });
         } else {
             alert('Failed to send email.');
         }
     });
 }
+
+function createCampaignRecord(campaignDetails) {
+    fetch('/campaigns', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(campaignDetails),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Campaign record created:', data);
+        // Handle success or failure
+    })
+    .catch(error => {
+        console.error('Error creating campaign record:', error);
+    });
+}
+
+function confirmSend() {
+    const recipientListId = document.getElementById('recipientList').value;
+    const templateId = new URLSearchParams(window.location.search).get('templateId');
+    const emailSubject = document.getElementById('emailSubject').textContent;
+    const emailFromName = document.getElementById('emailFromName').textContent;
+    const emailFromEmail = document.getElementById('emailFromEmail').textContent;
+    const iframe = document.getElementById('emailPreviewFrame');
+    const htmlContent = iframe.contentWindow.document.body.innerHTML; // Extract HTML content
+    
+
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            templateId,
+            recipientListId,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Email sent successfully!');
+            $('#confirmationModal').modal('hide');
+
+            // Now, save the campaign details
+            fetch('/save-campaign', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject: emailSubject,
+                    fromName: emailFromName,
+                    fromEmail: emailFromEmail,
+                    htmlContent: htmlContent,
+                    templateId: templateId,
+                    recipientListId: recipientListId,
+                }),
+            })
+            .then(res => res.json())
+            .then(saveData => {
+                if (saveData.success) {
+                    console.log('Campaign saved successfully');
+                    // Handle success, maybe redirect or show a message
+                } else {
+                    console.error('Failed to save campaign');
+                    // Handle failure, show an error message
+                }
+            });
+        } else {
+            alert('Failed to send email.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campaign Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/js/navbar.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <a href="/campaigns.html" class="btn btn-primary mb-3">Back to Campaigns</a>
+        <h2 id="campaignSubject">Loading...</h2>
+        <div><strong>From:</strong> <span id="campaignFrom"></span></div>
+        <div><strong>Sent:</strong> <span id="campaignSent"></span></div>
+        <div><strong>Stats:</strong></div>
+        <ul id="campaignStats">
+            <!-- Stats will be listed here -->
+        </ul>
+        <div id="campaignContent" style="border: 1px solid #dee2e6; border-radius: 0.25rem;">
+            <!-- iframe will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const campaignId = params.get('id');
+
+            if (!campaignId) {
+                document.body.innerHTML = '<p>Error: Campaign ID is missing.</p>';
+                return;
+            }
+
+            fetch(`/campaigns/${campaignId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(campaign => {
+                    if (!campaign) {
+                        throw new Error('Campaign data is empty');
+                    }
+                    document.getElementById('campaignSubject').textContent = campaign.subject || 'No Subject';
+                    document.getElementById('campaignFrom').textContent = `${campaign.fromName || 'Unknown'} (${campaign.fromEmail || 'No Email'})`;
+
+                    const sentDate = new Date(campaign.createdAt);
+                    document.getElementById('campaignSent').textContent = sentDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+
+                    const statsList = document.getElementById('campaignStats');
+                    if (campaign.stats) {
+                        Object.entries(campaign.stats).forEach(([key, value]) => {
+                            const item = document.createElement('li');
+                            item.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
+                            statsList.appendChild(item);
+                        });
+                    }
+
+                    // Create an iframe and set its content to campaign.htmlContent
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '500px'; // Adjust the height as needed
+                    iframe.style.border = 'none';
+                    iframe.onload = function() {
+                        this.contentWindow.document.body.innerHTML = campaign.htmlContent || 'No content available';
+                    };
+                    document.getElementById('campaignContent').appendChild(iframe);
+                })
+                .catch(error => {
+                    console.error('Error loading campaign details:', error);
+                    document.body.innerHTML = `<p>Error loading campaign details: ${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Campaigns</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/js/navbar.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Campaigns</h2>
+        <ul id="campaignsList" class="list-group mt-3">
+            <!-- Campaigns will be listed here -->
+        </ul>
+    </div>
+
+    <script>
+        fetch('/campaigns')
+            .then(response => response.json())
+            .then(campaigns => {
+                // Sort campaigns by createdAt in descending order
+                campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                const list = document.getElementById('campaignsList');
+                campaigns.forEach(campaign => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    
+                    // Format createdAt timestamp
+                    const sentDate = new Date(campaign.createdAt);
+                    const formattedDate = sentDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+                    
+                    // Include both the subject and the formatted timestamp
+                    item.innerHTML = `<strong>${campaign.subject}</strong> - <a href="campaign-details.html?id=${campaign._id}">View Details</a> <span class="text-muted" style="float:right;">${formattedDate}</span>`;
+                    list.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error loading campaigns:', error));
+    </script>
+</body>
+</html>
