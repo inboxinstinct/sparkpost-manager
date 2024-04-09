@@ -4,18 +4,37 @@
     <meta charset="UTF-8">
     <title>Campaigns</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .table {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Add any additional custom styles here to match the templates.html styling */
+    </style>
     <script src="/js/navbar.js"></script>
 </head>
 <body>
+    
 
-    <h6 class="my-4" style="text-align: center;">Campaign Archive</h6>
-    <hr>
+    <h6 class="my-4" style="text-align: center; padding-top:20px;">Campaign Archive</h6>
     <div class="container mt-5">
-
-
-        <ul id="campaignsList" class="list-group mt-3">
-            <!-- Campaigns will be listed here -->
-        </ul>
+        <table class="table">
+            <thead class="thead-light"> <!-- Use thead-light or thead-dark for themed headers -->
+                <tr>
+                    <th>ID</th>
+                    <th>Subject Line</th>
+                    <th style="text-align:center" >Open Rate</th>
+                    <th style="text-align:center" >Click Rate</th>
+                    <th style="text-align:center" >See Details</th>
+                </tr>
+            </thead>
+            <tbody id="campaignsList">
+                <!-- Campaigns will be listed here -->
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -27,16 +46,27 @@
 
                 const list = document.getElementById('campaignsList');
                 campaigns.forEach(campaign => {
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item';
-                    
-                    // Format createdAt timestamp
-                    const sentDate = new Date(campaign.createdAt);
-                    const formattedDate = sentDate.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-                    
-                    // Swap the position of the timestamp and the "View Details" link
-                    item.innerHTML = `<strong>${campaign.subject}</strong> - <span class="text-muted">${formattedDate}</span> <a style="float: right" href="campaign-details.html?campaignId=${campaign.campaignId}">View Details</a>`;
-                    list.appendChild(item);
+                    const row = document.createElement('tr');
+
+                    // Check for successfulDeliveries to avoid division by zero
+                    const successfulDeliveries = campaign.stats.successfulDeliveries || 0;
+                    let openRate = 'N/A';
+                    let clickRate = 'N/A';
+
+                    if (successfulDeliveries > 0) {
+                        openRate = ((campaign.stats.opens || 0) / successfulDeliveries * 100).toFixed(2) + '%';
+                        clickRate = ((campaign.stats.clicks || 0) / successfulDeliveries * 100).toFixed(2) + '%';
+                    }
+
+                    // Construct row content with new columns
+                    row.innerHTML = `
+                        <td>${campaign.campaignId}</td>
+                        <td>${campaign.subject}</td>
+                        <td style="text-align:center" >${openRate}</td>
+                        <td style="text-align:center" >${clickRate}</td>
+                        <td style="text-align:center" ><a href="campaign-details.html?campaignId=${campaign.campaignId}">View →</a></td>
+                    `;
+                    list.appendChild(row);
                 });
             })
             .catch(error => console.error('Error loading campaigns:', error));
