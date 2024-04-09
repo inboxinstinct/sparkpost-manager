@@ -5,7 +5,8 @@
     <title>Campaign Details</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="/js/navbar.js"></script>
-    <style>.stats-section {
+    <style>
+    .stats-section {
         margin-top: 2rem;
         margin-bottom: 2rem;
         background: #f9f9f9;
@@ -46,12 +47,12 @@
         text-decoration: underline;
     }
     .campaign-details {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
 
     .btn-back {
         background-color: #007bff;
@@ -78,11 +79,11 @@
     }
 
     .iframe-container {
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    overflow: hidden;   
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        overflow: hidden;   
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
     }
 
     iframe {
@@ -95,7 +96,69 @@
         iframe {
             height: 300px;
         }
+        .circular-chart {
+            width: 60px0px; /* Smaller circles on smaller screens */
+            height: 60px; 
+        }
     }
+
+    .percentages-grid {
+        display: flex; /* Changed from grid to flex */
+        flex-wrap: wrap; /* Allows items to wrap as needed */
+        justify-content: space-around; /* Distributes space around items */
+        align-items: center; /* Align items vertically */
+    }
+
+    .grid-item {
+        flex: 1; /* Allows each item to grow */
+        text-align: center; /* Centers the text within each item */
+        margin: 10px; /* Adds some space around items */
+    }
+
+    .circular-chart {
+        width: 100px; /* Adjust the SVG size */
+        height: 100px; /* Adjust the SVG size */
+    }
+    .circle-bg {
+        fill: none;
+        stroke: #eee;
+        stroke-width: 3.8;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #333;
+    }
+
+    .circle {
+        fill: none;
+        stroke-width: 2.8;
+        stroke-linecap: round;
+        animation: progress 1s ease-out forwards;
+    }
+
+    /* Enhance the visual appeal of buttons and links */
+    .btn-back, .stat-item a {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .btn-back:hover, .stat-item a:hover     {
+        text-decoration: none; /* Remove underline on hover for a cleaner look */
+    }
+
+    @keyframes progress {
+        0% {
+            stroke-dasharray: 0 100;
+        }
+    }
+
+    .percentage {
+        fill: #333; /* Dark text for readability */
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 10px; /* Adjust based on your preference for readability */
+        text-anchor: middle; /* Ensure text is centered within the circle */
+    }
+
 
     </style>
 </head>
@@ -109,7 +172,109 @@
                 <div><strong>Campaign ID:</strong> <span id="campaignId"></span></div>
             </div>
         </div>
-<!-- Inside <div class="container mt-5">, after the existing content -->
+
+        <div class="percentages-grid">
+            <div class="grid-item">
+                <svg viewbox="0 0 36 36" class="circular-chart">
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color: #E3F2FD; stop-opacity: 1" />
+                            <stop offset="100%" style="stop-color: #007AFF; stop-opacity: 1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="circle-bg" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke="url(#gradient1)" stroke-dasharray="0, 100" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="percentage">0%</text>
+                </svg>
+                <div>Open Rate</div>
+            </div>
+
+            <div class="grid-item">                                <svg viewbox="0 0 36 36" class="circular-chart">
+                    <defs>
+                        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color: #E3F2FD; stop-opacity: 1" />
+                            <stop offset="100%" style="stop-color: #007AFF; stop-opacity: 1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="circle-bg" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke="url(#gradient2)" stroke-dasharray="0, 100" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="percentage">0%</text>
+                </svg>
+            <div>Click Rate</div></div>
+
+            <div class="grid-item">                                <svg viewbox="0 0 36 36" class="circular-chart">
+                    <defs>
+                        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color: #E3F2FD; stop-opacity: 1" />
+                            <stop offset="100%" style="stop-color: #007AFF; stop-opacity: 1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="circle-bg" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke="url(#gradient3)" stroke-dasharray="0, 100" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="percentage">0%</text>
+                </svg>
+            <div>Bounces</div></div>
+
+            <div class="grid-item">                      <svg viewbox="0 0 36 36" class="circular-chart">
+                    <defs>
+                        <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color: #E3F2FD; stop-opacity: 1" />
+                            <stop offset="100%" style="stop-color: #007AFF; stop-opacity: 1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="circle-bg" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke="url(#gradient4)" stroke-dasharray="0, 100" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="percentage">0%</text>
+                </svg>
+            <div>Unsubscribes</div></div>
+
+            <div class="grid-item">                                <svg viewbox="0 0 36 36" class="circular-chart">
+                    <defs>
+                        <linearGradient id="gradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color: #E3F2FD; stop-opacity: 1" />
+                            <stop offset="100%" style="stop-color: #007AFF; stop-opacity: 1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="circle-bg" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke="url(#gradient5)" stroke-dasharray="0, 100" d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <text x="18" y="20.35" class="percentage">0%</text>
+                </svg>
+            <div>Complaints</div>
+            
+            </div>
+            <!-- Repeat for each percentage type (Click Rate, Bounce Rate, etc.) -->
+        </div>
+
+        <div class="percentages-section" style="display: none; margin-top: 2rem; margin-bottom: 2rem; background: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h3>Engagement Rates</h3>
+            <div class="percentage-item"><strong>Open Rate:</strong> <span id="openRate">0%</span></div>
+            <div class="percentage-item"><strong>Click Rate:</strong> <span id="clickRate">0%</span></div>
+            <div class="percentage-item"><strong>Bounce Rate:</strong> <span id="bounceRate">0%</span></div>
+            <div class="percentage-item"><strong>Unsubscribe Rate:</strong> <span id="unsubscribeRate">0%</span></div>
+            <div class="percentage-item"><strong>Complaint Rate:</strong> <span id="complaintRate">0%</span></div>
+        </div>
+
+
     <div class="stats-section">
         <div class="stat-item">
             <span>Openers: <span id="openersCount">0</span></span>
@@ -152,6 +317,39 @@
         return;
     }
 
+    function setProgress(percent, index) {
+    const circles = document.querySelectorAll('.circle');
+    if (index >= circles.length) {
+        console.error('Index out of bounds for circles:', index);
+        return;
+    }
+
+    // Ensure 'percent' is treated as a number and handle NaN
+    const percentFilled = parseFloat(percent);
+    if (isNaN(percentFilled)) {
+        console.error('Invalid percentage value:', percent);
+        return; // Exit the function if 'percent' is not a valid number
+    }
+
+    const circle = circles[index];
+    const circumference = circle.getTotalLength();
+    const offset = circumference - (percentFilled / 100) * circumference;
+
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = offset;
+
+    // Update the percentage text, ensuring 'percentFilled' is treated as a number
+    const percentageText = circle.parentNode.querySelector('.percentage');
+    if (percentageText) {
+        percentageText.textContent = `${percentFilled.toFixed(0)}%`;
+    } else {
+        console.error('Percentage text element not found for index:', index);
+    }
+
+
+}
+
+
     fetch(`/campaigns/details/${campaignId}`)
         .then(response => {
             if (!response.ok) {
@@ -177,6 +375,25 @@
                     document.getElementById('deliveredCount').textContent = campaign.delivered.length;
                     document.getElementById('unsubscribedCount').textContent = campaign.unsubscribed.length;
                     document.getElementById('complaintsCount').textContent = campaign.complaints.length;
+
+                    const delivered = campaign.stats.successfulDeliveries;
+    const openRate = ((campaign.stats.opens / delivered) * 100).toFixed(2);
+    const clickRate = ((campaign.stats.clicks / delivered) * 100).toFixed(2);
+    const bounceRate = ((campaign.stats.bounces / delivered) * 100).toFixed(2);
+    const unsubscribeRate = ((campaign.stats.unsubscribes / delivered) * 100).toFixed(2);
+    const complaintRate = ((campaign.stats.spamComplaints / delivered) * 100).toFixed(2);
+
+    document.getElementById('openRate').textContent = `${openRate}%`;
+    document.getElementById('clickRate').textContent = `${clickRate}%`;
+    document.getElementById('bounceRate').textContent = `${bounceRate}%`;
+    document.getElementById('unsubscribeRate').textContent = `${unsubscribeRate}%`;
+    document.getElementById('complaintRate').textContent = `${complaintRate}%`;
+
+            setProgress(openRate, 0); // Open Rate
+            setProgress(clickRate, 1); // Click Rate
+            setProgress(bounceRate, 2); // Bounce Rate
+            setProgress(unsubscribeRate, 3); // Unsubscribe Rate
+            setProgress(complaintRate, 4); // Complaint Rate
 
 
                   /*  if (campaign.stats) {

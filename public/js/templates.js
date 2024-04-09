@@ -10,18 +10,25 @@ async function fetchTemplates() {
     const data = await response.json();
 
     if (data.success) {
+        // Sort templates by last_update_time in descending order (newest first)
+        data.data.sort((a, b) => new Date(b.last_update_time) - new Date(a.last_update_time));
+
         const list = document.getElementById('templateList');
         list.innerHTML = ''; // Clear existing list items
 
         data.data.forEach(template => {
             const row = document.createElement('tr');
+            // Determine the ready status symbol
+            const readySymbol = template.published ? '✔' : '✘';
             row.innerHTML = `
+                <td style="text-align:center">${readySymbol}</td> <!-- New cell for "Ready" status -->
                 <td>${template.name}</td>
-                <td>${template.description || 'No description available'}</td>
-                <td><a href="deployment.html?templateId=${template.id}" class="btn btn-primary btn-sm">View</a></td>
+                <td>${template.description || 'Empty.'}</td>
+                <td><a href="deployment.html?templateId=${template.id}">View →</a></td>
             `;
             list.appendChild(row);
         });
+        
 
         updatePagination(data.total);
     } else {

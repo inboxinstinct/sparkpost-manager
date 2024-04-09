@@ -9,9 +9,8 @@
             background-color: #f7f7f7;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        .navbar {
-            background-color: #fff;
-            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+        .table {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .table {
@@ -45,30 +44,13 @@
 </head>
 <body>
 
-
-
-<script>
-    // Immediately-invoked function to check user authentication status
-    (function() {
-      fetch('/auth/check')
-        .then(response => response.json())
-        .then(data => {
-          if (!data.isAuthenticated) {
-            // Redirect to the login page if not authenticated
-            window.location.href = '/login';
-          }
-        })
-        .catch(error => console.error('Error checking auth status:', error));
-    })();
-  </script>
-
-<h6 class="my-4" style="text-align: center;">Template Browser</h6>
-<hr>
+    <h6 class="my-4" style="text-align: center; padding-top:20px;">Template Browser</h6>
 
 <div class="container" id="templates">
     <table class="table">
-        <thead>
+        <thead class="thead-light"> <!-- Adjusted to use thead-light for consistency -->
             <tr>
+                <th scope="col" style="text-align:center">Status</th>
                 <th scope="col">Template Name</th>
                 <th scope="col">Description</th>
                 <th scope="col">Actions</th>

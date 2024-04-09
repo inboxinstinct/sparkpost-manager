@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 flex-grow: 1;
                 color: #f1f1f1
             }
+
+            #Campaigns {
+                border-left: 1px solid #dee2e6
+            }
+
+            #title1 {
+                padding-top: 20px;
+            }
             
             #customNavbar .nav-link {
                 color: #343a40;
