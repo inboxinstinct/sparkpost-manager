@@ -24,13 +24,14 @@ async function fetchTemplates() {
                 <td style="text-align:center">${readySymbol}</td> <!-- New cell for "Ready" status -->
                 <td>${template.name}</td>
                 <td>${template.description || 'Empty.'}</td>
-                <td><a href="deployment.html?templateId=${template.id}">View →</a></td>
+                <td><a href="deployment.html?templateId=${template.id}">Deploy →</a></td>
             `;
             list.appendChild(row);
         });
         
 
         updatePagination(data.total);
+        document.getElementById('loadingSpinner').remove();
     } else {
         console.error('Failed to load templates');
     }

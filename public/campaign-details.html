@@ -14,6 +14,31 @@
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
+    #loadingSpinner {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px; /* Adjust the padding as needed */
+    padding-bottom: 20px;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: rgb(0, 0, 0);
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
     
     .stats-section h3 {
         margin-bottom: 1.5rem;
@@ -163,7 +188,9 @@
     </style>
 </head>
 <body>
+    
     <div class="container mt-5">
+        <div id="loadingSpinner" style="display: none;">Awaiting data...<p>&nbsp;&nbsp;&nbsp;</p><div class="spinner"></div></div>
         <div class="campaign-details">
             <div class="campaign-info">
                 <div><strong>Subject Line:</strong> <span id="campaignSubject"></span></div>
@@ -309,114 +336,121 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const params = new URLSearchParams(window.location.search);
-    const campaignId = params.get('campaignId');
-
-    if (!campaignId) {
-        document.body.innerHTML = '<p>Error: Campaign ID is missing.</p>';
-        return;
-    }
-
-    function setProgress(percent, index) {
-    const circles = document.querySelectorAll('.circle');
-    if (index >= circles.length) {
-        console.error('Index out of bounds for circles:', index);
-        return;
-    }
-
-    // Ensure 'percent' is treated as a number and handle NaN
-    const percentFilled = parseFloat(percent);
-    if (isNaN(percentFilled)) {
-        console.error('Invalid percentage value:', percent);
-        return; // Exit the function if 'percent' is not a valid number
-    }
-
-    const circle = circles[index];
-    const circumference = circle.getTotalLength();
-    const offset = circumference - (percentFilled / 100) * circumference;
-
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = offset;
-
-    // Update the percentage text, ensuring 'percentFilled' is treated as a number
-    const percentageText = circle.parentNode.querySelector('.percentage');
-    if (percentageText) {
-        percentageText.textContent = `${percentFilled.toFixed(0)}%`;
-    } else {
-        console.error('Percentage text element not found for index:', index);
-    }
-
-
-}
-
-
-    fetch(`/campaigns/details/${campaignId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            const params = new URLSearchParams(window.location.search);
+            const campaignId = params.get('campaignId');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+        
+            if (!campaignId) {
+                document.body.innerHTML = '<p>Error: Campaign ID is missing.</p>';
+                return;
             }
-            return response.json();
-        })
-        .then(campaign => {
-            if (!campaign) {
-                throw new Error('Campaign data is empty');
+
+            function showLoadingSpinner() {
+        loadingSpinner.style.display = 'flex'; // Show the loading spinner
+    }
+
+    function hideLoadingSpinner() {
+        loadingSpinner.style.display = 'none'; // Hide the loading spinner
+    }
+
+        
+            function setProgress(percent, index) {
+                const circles = document.querySelectorAll('.circle');
+                if (index >= circles.length) {
+                    console.error('Index out of bounds for circles:', index);
+                    return;
+                }
+        
+                const percentFilled = parseFloat(percent);
+                if (isNaN(percentFilled)) {
+                    console.error('Invalid percentage value:', percent);
+                    return;
+                }
+        
+                const circle = circles[index];
+                const circumference = circle.getTotalLength();
+                const offset = circumference - (percentFilled / 100) * circumference;
+        
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                circle.style.strokeDashoffset = offset;
+        
+                const percentageText = circle.parentNode.querySelector('.percentage');
+                if (percentageText) {
+                    percentageText.textContent = `${percentFilled.toFixed(0)}%`;
+                } else {
+                    console.error('Percentage text element not found for index:', index);
+                }
             }
-            document.getElementById('campaignSubject').textContent = campaign.subject || 'No Subject';
-            document.getElementById('campaignFrom').textContent = `${campaign.fromName || 'Unknown'} (${campaign.fromEmail || 'No Email'})`;
-            document.getElementById('campaignId').textContent = campaignId; // Set the campaign ID
-
-            const sentDate = new Date(campaign.createdAt);
-            document.getElementById('campaignSent').textContent = sentDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
-
-                    // After setting the campaign content
-                    document.getElementById('openersCount').textContent = campaign.openers.length;
-                    document.getElementById('clickersCount').textContent = campaign.clickers.length;
-                    document.getElementById('bouncersCount').textContent = campaign.bouncers.length;
-                    document.getElementById('deliveredCount').textContent = campaign.delivered.length;
-                    document.getElementById('unsubscribedCount').textContent = campaign.unsubscribed.length;
-                    document.getElementById('complaintsCount').textContent = campaign.complaints.length;
-
-                    const delivered = campaign.stats.successfulDeliveries;
-    const openRate = ((campaign.stats.opens / delivered) * 100).toFixed(2);
-    const clickRate = ((campaign.stats.clicks / delivered) * 100).toFixed(2);
-    const bounceRate = ((campaign.stats.bounces / delivered) * 100).toFixed(2);
-    const unsubscribeRate = ((campaign.stats.unsubscribes / delivered) * 100).toFixed(2);
-    const complaintRate = ((campaign.stats.spamComplaints / delivered) * 100).toFixed(2);
-
-    document.getElementById('openRate').textContent = `${openRate}%`;
-    document.getElementById('clickRate').textContent = `${clickRate}%`;
-    document.getElementById('bounceRate').textContent = `${bounceRate}%`;
-    document.getElementById('unsubscribeRate').textContent = `${unsubscribeRate}%`;
-    document.getElementById('complaintRate').textContent = `${complaintRate}%`;
-
-            setProgress(openRate, 0); // Open Rate
-            setProgress(clickRate, 1); // Click Rate
-            setProgress(bounceRate, 2); // Bounce Rate
-            setProgress(unsubscribeRate, 3); // Unsubscribe Rate
-            setProgress(complaintRate, 4); // Complaint Rate
-
-
-                  /*  if (campaign.stats) {
-                        Object.entries(campaign.stats).forEach(([key, value]) => {
-                            const item = document.createElement('li');
-                            item.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`;
-                            statsList.appendChild(item);
-                        });
-                    } */
-
-            document.getElementById('campaignIframe').srcdoc = campaign.htmlContent || 'No content available';
-        })
-        .catch(error => {
-            console.error('Error loading campaign details:', error);
-            document.body.innerHTML = `<p>Error loading campaign details: ${error.message}</p>`;
+        
+            function fetchCampaignDetails(attempt = 1) {
+                showLoadingSpinner();
+                fetch(`/campaigns/details/${campaignId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(campaign => {
+                        if (!campaign || !campaign.stats || campaign.stats.successfulDeliveries === undefined) {
+                            throw new Error('Campaign stats not ready');
+                        }
+                        hideLoadingSpinner()
+                        // Process campaign data
+                        document.getElementById('campaignSubject').textContent = campaign.subject || 'No Subject';
+                        document.getElementById('campaignFrom').textContent = `${campaign.fromName || 'Unknown'} (${campaign.fromEmail || 'No Email'})`;
+                        document.getElementById('campaignId').textContent = campaignId;
+        
+                        const sentDate = new Date(campaign.createdAt);
+                        document.getElementById('campaignSent').textContent = sentDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+        
+                        document.getElementById('openersCount').textContent = campaign.openers.length;
+                        document.getElementById('clickersCount').textContent = campaign.clickers.length;
+                        document.getElementById('bouncersCount').textContent = campaign.bouncers.length;
+                        document.getElementById('deliveredCount').textContent = campaign.delivered.length;
+                        document.getElementById('unsubscribedCount').textContent = campaign.unsubscribed.length;
+                        document.getElementById('complaintsCount').textContent = campaign.complaints.length;
+        
+                        const delivered = campaign.stats.successfulDeliveries;
+                        const openRate = ((campaign.stats.opens / delivered) * 100).toFixed(2);
+                        const clickRate = ((campaign.stats.clicks / delivered) * 100).toFixed(2);
+                        const bounceRate = ((campaign.stats.bounces / delivered) * 100).toFixed(2);
+                        const unsubscribeRate = ((campaign.stats.unsubscribes / delivered) * 100).toFixed(2);
+                        const complaintRate = ((campaign.stats.spamComplaints / delivered) * 100).toFixed(2);
+        
+                        document.getElementById('openRate').textContent = `${openRate}%`;
+                        document.getElementById('clickRate').textContent = `${clickRate}%`;
+                        document.getElementById('bounceRate').textContent = `${bounceRate}%`;
+                        document.getElementById('unsubscribeRate').textContent = `${unsubscribeRate}%`;
+                        document.getElementById('complaintRate').textContent = `${complaintRate}%`;
+        
+                        setProgress(openRate, 0);
+                        setProgress(clickRate, 1);
+                        setProgress(bounceRate, 2);
+                        setProgress(unsubscribeRate, 3);
+                        setProgress(complaintRate, 4);
+        
+                        document.getElementById('campaignIframe').srcdoc = campaign.htmlContent || 'No content available';
+                    })
+                    .catch(error => {
+                        console.error('Error loading campaign details:', error);
+                        if (attempt < 10) { // Retry up to 10 times
+                            setTimeout(() => fetchCampaignDetails(attempt + 1), 10000);
+                        } else {
+                            hideLoadingSpinner();
+                            document.body.innerHTML = `<p>Error loading campaign details after several attempts: ${error.message}</p>`;
+                        }
+                    });
+            }
+        
+            fetchCampaignDetails(); // Initiate the fetch operation with retry mechanism
+        
+            function exportData(dataType) {
+                const campaignId = document.getElementById('campaignId').textContent;
+                window.location.href = `/campaigns/export/${campaignId}/${dataType}`;
+            }
         });
-});
-
-function exportData(dataType) {
-    const campaignId = document.getElementById('campaignId').textContent; // Make sure this ID is correctly populated
-    window.location.href = `/campaigns/export/${campaignId}/${dataType}`;
-}
-
-    </script>
+        </script>
+        
 </body>
 </html>
