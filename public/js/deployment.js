@@ -126,6 +126,14 @@ function confirmSend() {
 }
  */
 
+function showPopup(popupId) {
+    document.getElementById(popupId).style.display = 'flex';
+}
+
+function closePopup(popupId) {
+    document.getElementById(popupId).style.display = 'none';
+}
+
 function confirmSend() {
     const recipientListId = document.getElementById('recipientList').value;
     const templateId = new URLSearchParams(window.location.search).get('templateId');
@@ -148,11 +156,16 @@ function confirmSend() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Email sent successfully!');
+            showPopup('successPopup');
             $('#confirmationModal').modal('hide');
 
             // Use the campaignIdStr from the response here
             const campaignIdStr = data.campaignId;
+
+            setTimeout(() => {
+                window.location.href = `campaign-details.html?campaignId=${campaignIdStr}`;
+            }, 5000); // 5000 milliseconds = 5 seconds
+
 
             // Now, save the campaign details with the campaignIdStr
             fetch('/save-campaign', {
@@ -181,7 +194,7 @@ function confirmSend() {
                 }
             });
         } else {
-            alert('Failed to send email.');
+            showPopup('errorPopup');
         }
     })
     .catch(error => {
