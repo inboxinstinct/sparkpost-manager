@@ -142,6 +142,8 @@ function confirmSend() {
     const emailFromEmail = document.getElementById('emailFromEmail').textContent;
     const iframe = document.getElementById('emailPreviewFrame');
     const htmlContent = iframe.contentWindow.document.body.innerHTML;
+    const scheduledAt = document.getElementById('scheduledAt').value;
+
 
     fetch('/send-email', {
         method: 'POST',
@@ -151,6 +153,7 @@ function confirmSend() {
         body: JSON.stringify({
             templateId,
             recipientListId,
+            scheduledAt, 
         }),
     })
     .then(response => response.json())
@@ -181,6 +184,9 @@ function confirmSend() {
                     htmlContent: htmlContent,
                     templateId: templateId,
                     recipientListId: recipientListId,
+                    isScheduleSent: false,
+                    scheduledAt: scheduledAt ? new Date(scheduledAt) : null, 
+
                 }),
             })
             .then(res => res.json())

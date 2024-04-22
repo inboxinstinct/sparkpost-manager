@@ -9,6 +9,8 @@ const router = express.Router();
 const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 const app = express();
 const db = new sqlite3.Database('./users.db');
+const schedule = require('node-schedule');
+
 
 // {{ render_snippet( "unsubscribe" ) }}
 
@@ -240,7 +242,7 @@ app.post('/register', async (req, res) => {
 // Example in your Node.js server code
 app.post('/save-campaign', async (req, res) => {
     try {
-        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, } = req.body;
+        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, isScheduleSent, scheduledAt} = req.body;
 
 
         const campaign = new Campaign({
@@ -251,7 +253,9 @@ app.post('/save-campaign', async (req, res) => {
             htmlContent,
             templateId,
             recipientListId,
-            // sentDate is automatically set to now
+            isScheduleSent,
+            scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+ 
         });
 
         await campaign.save(); // Save the campaign to MongoDB
@@ -274,10 +278,28 @@ async function getNextCampaignId() {
 
   app.post('/send-email', requireAuth, async (req, res) => {
     try {
-        const { templateId, recipientListId } = req.body;
+        const { templateId, recipientListId, scheduledAt } = req.body;
         const newCampaignId = await getNextCampaignId();
         const campaignIdStr = newCampaignId.toString();
 
+        if (scheduledAt) {
+          /*  const scheduledJob = schedule.scheduleJob(new Date(scheduledAt), async () => {
+                await sendEmail(templateId, recipientListId, campaignIdStr);
+            }); */ 
+
+            res.status(200).json({ success: true, message: 'Email scheduled for deployment', campaignId: campaignIdStr });
+        } else {
+            await sendEmail(templateId, recipientListId, campaignIdStr);
+            res.status(200).json({ success: true, message: 'Email deployed successfully', campaignId: campaignIdStr });
+        }
+    } catch (err) {
+        console.error('Error sending email:', err);
+        res.status(500).json({ success: false, message: 'Failed to send email. Please try again.' });
+    }
+});
+
+async function sendEmail(templateId, recipientListId, campaignIdStr) {
+    try {
         const response = await client.transmissions.send({
             content: {
                 template_id: templateId,
@@ -287,13 +309,12 @@ async function getNextCampaignId() {
             },
             campaign_id: campaignIdStr,
         });
-
-        // Include campaignIdStr in the response
-        res.status(200).json({ success: true, data: response, campaignId: campaignIdStr });
+        console.log('Email sent successfully:', response);
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        console.error('Error sending email:', err);
+        throw err;
     }
-});
+}
 
 
 
