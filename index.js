@@ -178,10 +178,10 @@ app.get('/recipient-lists', requireAuth, async (req, res) => {
     }
 });
 
-function arrayToCSV(data) {
+/*function arrayToCSV(data) {
     const csvRows = data.map(row => (typeof row === 'string' ? row : row.email).replace(/"/g, '""')); // Assuming each row is a simple email string or an object with an email property
     return `"${csvRows.join('"\n"')}"`; // Quote strings and separate by newline
-}
+} */
 
 app.get('/campaigns/export/:campaignId/:dataType', requireAuth, async (req, res) => {
     try {
@@ -204,6 +204,11 @@ app.get('/campaigns/export/:campaignId/:dataType', requireAuth, async (req, res)
         res.status(500).send('Server error');
     }
 });
+
+function arrayToCSV(data) {
+    const csvRows = data.map(row => (typeof row === 'string' ? row : row.email).replace(/"/g, '""')); // Assuming each row is a simple email string or an object with an email property
+    return `"${csvRows.join('"\n"')}"`; // Quote strings and separate by newline
+}
 
 
 

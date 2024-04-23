@@ -305,27 +305,27 @@
     <div class="stats-section">
         <div class="stat-item">
             <span>Openers: <span id="openersCount">0</span></span>
-            <a href="#" onclick="exportData('openers')">Export</a>
+            <a href="#" data-type="openers">Export</a>
         </div>
         <div class="stat-item">
             <span>Clickers: <span id="clickersCount">0</span></span>
-            <a href="#" onclick="exportData('clickers')">Export</a>
+            <a href="#" data-type="clickers">Export</a>
         </div>
         <div class="stat-item">
             <span>Bouncers: <span id="bouncersCount">0</span></span>
-            <a href="#" onclick="exportData('bouncers')">Export</a>
+            <a href="#" data-type="bouncers">Export</a>
         </div>
         <div class="stat-item">
             <span>Delivered: <span id="deliveredCount">0</span></span>
-            <a href="#" onclick="exportData('delivered')">Export</a>
+            <a href="#" data-type="delivered">Export</a>
         </div>
         <div class="stat-item">
             <span>Unsubscribed: <span id="unsubscribedCount">0</span></span>
-            <a href="#" onclick="exportData('unsubscribed')">Export</a>
+            <a href="#" data-type="unsubscribed">Export</a>
         </div>
         <div class="stat-item">
             <span>Complaints: <span id="complaintsCount">0</span></span>
-            <a href="#" onclick="exportData('complaints')">Export</a>
+            <a href="#" data-type="complaints">Export</a>
         </div>
     </div>
     
@@ -446,10 +446,36 @@
             fetchCampaignDetails(); // Initiate the fetch operation with retry mechanism
         
             function exportData(dataType) {
-                const campaignId = document.getElementById('campaignId').textContent;
-                window.location.href = `/campaigns/export/${campaignId}/${dataType}`;
-            }
-        });
+            const campaignId = document.getElementById('campaignId').textContent;
+            const url = `/campaigns/export/${campaignId}/${dataType}`;
+            
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Set the filename
+            link.download = `${dataType}-${campaignId}.csv`;
+            
+            // Append the link to the document body
+            document.body.appendChild(link);
+            
+            // Trigger the click event on the link
+            link.click();
+            
+            // Remove the link from the document body
+            document.body.removeChild(link);
+        }
+
+        // Attach event listeners to the "Export" links
+        const exportLinks = document.querySelectorAll('.stat-item a');
+        exportLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const dataType = this.getAttribute('data-type');
+                exportData(dataType);
+            });
+        }); 
+    });
         </script>
         
 </body>
