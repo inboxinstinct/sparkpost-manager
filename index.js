@@ -242,8 +242,7 @@ app.post('/register', async (req, res) => {
 // Example in your Node.js server code
 app.post('/save-campaign', async (req, res) => {
     try {
-        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, isScheduleSent, scheduledAt} = req.body;
-
+        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, isScheduleSent, scheduledAt, tempo, tempoRate } = req.body;
 
         const campaign = new Campaign({
             campaignId,
@@ -255,7 +254,10 @@ app.post('/save-campaign', async (req, res) => {
             recipientListId,
             isScheduleSent,
             scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
- 
+            tempo,
+            tempoRate,
+            tempoProgress: tempo ? 0 : null,
+            inProgress: tempo,
         });
 
         await campaign.save(); // Save the campaign to MongoDB

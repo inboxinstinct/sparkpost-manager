@@ -11,6 +11,10 @@ const campaignSchema = new mongoose.Schema({
   templateId: { type: String, required: false },
   recipientListId: { type: String, required: false },
   isScheduleSent: { type: Boolean, required: false },
+  tempo: { type: Boolean, default: false },
+  tempoRate: { type: Number, default: null },
+  tempoProgress: { type: Number, default: 0 },
+  inProgress: { type: Boolean, default: false },
   stats: {
     opens: Number,
     clicks: Number,

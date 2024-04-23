@@ -142,8 +142,11 @@ function confirmSend() {
     const emailFromEmail = document.getElementById('emailFromEmail').textContent;
     const iframe = document.getElementById('emailPreviewFrame');
     const htmlContent = iframe.contentWindow.document.body.innerHTML;
-    const scheduledAt = document.getElementById('scheduledAt').value;
+    const scheduledAtInput = document.getElementById('scheduledAt');
+    const scheduledAt = scheduledAtInput.value ? new Date(scheduledAtInput.value) : new Date(Date.now() + 60000); // Current time + 1 minute
 
+    const tempo = document.getElementById('tempoCheckbox').checked;
+    const tempoRate = tempo ? parseInt(document.getElementById('tempoRate').value) : null;
 
     fetch('/send-email', {
         method: 'POST',
@@ -153,7 +156,7 @@ function confirmSend() {
         body: JSON.stringify({
             templateId,
             recipientListId,
-            scheduledAt, 
+            scheduledAt: scheduledAt.toISOString(),
         }),
     })
     .then(response => response.json())
@@ -162,22 +165,19 @@ function confirmSend() {
             showPopup('successPopup');
             $('#confirmationModal').modal('hide');
 
-            // Use the campaignIdStr from the response here
             const campaignIdStr = data.campaignId;
 
             setTimeout(() => {
                 window.location.href = `campaign-details.html?campaignId=${campaignIdStr}`;
-            }, 5000); // 5000 milliseconds = 5 seconds
+            }, 5000);
 
-
-            // Now, save the campaign details with the campaignIdStr
             fetch('/save-campaign', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    campaignId: campaignIdStr, // Use the campaign ID here
+                    campaignId: campaignIdStr,
                     subject: emailSubject,
                     fromName: emailFromName,
                     fromEmail: emailFromEmail,
@@ -185,18 +185,17 @@ function confirmSend() {
                     templateId: templateId,
                     recipientListId: recipientListId,
                     isScheduleSent: false,
-                    scheduledAt: scheduledAt ? new Date(scheduledAt) : null, 
-
+                    scheduledAt: scheduledAt,
+                    tempo: tempo,
+                    tempoRate: tempoRate,
                 }),
             })
             .then(res => res.json())
             .then(saveData => {
                 if (saveData.success) {
                     console.log('Campaign saved successfully');
-                    // Handle success, maybe redirect or show a message
                 } else {
                     console.error('Failed to save campaign');
-                    // Handle failure, show an error message
                 }
             });
         } else {
@@ -208,3 +207,12 @@ function confirmSend() {
     });
 }
 
+
+document.getElementById('tempoCheckbox').addEventListener('change', function() {
+    const tempoRateContainer = document.getElementById('tempoRateContainer');
+    if (this.checked) {
+        tempoRateContainer.style.display = 'block';
+    } else {
+        tempoRateContainer.style.display = 'none';
+    }
+});

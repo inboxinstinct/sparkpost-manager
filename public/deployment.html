@@ -160,6 +160,16 @@
             </select>
         </div>
         <div class="email-deployment-column">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="tempoCheckbox">
+                <label class="form-check-label" for="tempoCheckbox">Tempo Campaign</label>
+            </div>
+            <div id="tempoRateContainer" style="display: none;">
+                <label for="tempoRate" class="form-label">Tempo Rate:</label><br>
+                <input type="number" id="tempoRate" class="form-control" min="1" step="1">
+            </div>
+        </div>
+        <div class="email-deployment-column">
             <label for="scheduledAt" class="form-label">Schedule Deployment:</label><br>
             <input type="datetime-local" id="scheduledAt" class="form-control">
         </div>
