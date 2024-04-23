@@ -14,7 +14,7 @@
 
     }
     .deployment-container {
-        max-width: 900px;
+        max-width: 1000px;
         background-color: #fff;
         padding: 20px;
         border-radius: 10px;
@@ -91,20 +91,40 @@
 
     .email-deployment-row {
     display: flex;
-    max-width: 900px;
+    max-width: 95%;
     justify-content: space-between;
-    align-items: center;
-    margin-top: 3rem; /* Adjust the margin as needed */
+    align-items: stretch;
+    margin: 1rem auto;
 }
 
 .email-deployment-column {
-    flex: 1; /* Ensures that the column takes up equal space */
-    padding-right: 1rem; /* Adds some spacing between the two columns */
+    flex: 1;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.email-deployment-column-button {
-   /* flex-basis: auto; */ /* Allows the button column to adjust based on content size */
-    padding-left: 1rem; /* Ensures spacing between the columns is maintained */
+.email-deployment-item {
+    text-align: center;
+    width: 100%;
+}
+
+.email-deployment-item .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.email-deployment-item .form-select,
+.email-deployment-item .form-control {
+    width: 100%;
+}
+
+.email-deployment-item .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 26px;
+
 }
 
 /* Adjustments for smaller screens */
@@ -112,13 +132,8 @@
     .email-deployment-row {
         flex-direction: column;
     }
-    .email-deployment-column,
-    .email-deployment-column-button {
-        padding-right: 0;
-        padding-left: 0;
-    }
-    .email-deployment-column-button {
-        margin-top: 1rem; /* Adds some space above the button on smaller screens */
+    .email-deployment-column {
+        padding: 1rem 0;
     }
 }
 
@@ -152,29 +167,31 @@
         <p><b>From Email:</b> <span id="emailFromEmail">Loading...</span></p>
     </div>
     <iframe id="emailPreviewFrame" style="width: 100%; height: 400px; border: 1px solid #ccc;"></iframe>
-    <div class="email-deployment-row" style="text-align: center;width:100%;margin:auto">
+    <div class="email-deployment-row">
         <div class="email-deployment-column">
-            <label for="recipientList" class="form-label">Recipient List:</label><br>
-            <select id="recipientList" class="form-select mb-3">
-                <option value="">Select a recipient list</option>
-            </select>
-        </div>
-        <div class="email-deployment-column">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="tempoCheckbox">
-                <label class="form-check-label" for="tempoCheckbox">Tempo Campaign</label>
-            </div>
-            <div id="tempoRateContainer" style="display: none;">
-                <label for="tempoRate" class="form-label">Tempo Rate:</label><br>
-                <input type="number" id="tempoRate" class="form-control" min="1" step="1">
+            <div class="email-deployment-item">
+                <label for="recipientList" class="form-label" style="padding-bottom: 8px;">Recipient List:</label>
+                <select id="recipientList" class="form-select" style="margin-bottom: -18px;">
+                    <option value="">Select a recipient list</option>
+                </select>
             </div>
         </div>
         <div class="email-deployment-column">
-            <label for="scheduledAt" class="form-label">Schedule Deployment:</label><br>
-            <input type="datetime-local" id="scheduledAt" class="form-control">
+            <div class="email-deployment-item">
+                <label for="tempoRate" class="form-label">Tempo Rate:</label>
+                <input type="number" id="tempoRate" class="form-control" min="1" max="200" step="1" value="50" required>
+            </div>
         </div>
-        <div class="email-deployment-column email-deployment-column-button">
-            <button id="sendEmail" class="btn btn-primary">Send Email</button>
+        <div class="email-deployment-column">
+            <div class="email-deployment-item">
+                <label for="scheduledAt" class="form-label">Schedule Deployment:</label>
+                <input type="datetime-local" id="scheduledAt" class="form-control">
+            </div>
+        </div>
+        <div class="email-deployment-column">
+            <div class="email-deployment-item">
+                <button id="sendEmail" class="btn btn-primary">Send Email</button>
+            </div>
         </div>
     </div>
     
@@ -208,7 +225,8 @@
 <div id="successPopup" class="custom-popup" style="display:none;">
     <div class="popup-content">
         <h2>Success!</h2>
-        <p>Email deployed. Loading campaign details...</p>
+        <p>Email created.</p>
+        <a href="/campaigns.html"><button>View Campaigns</button></a>
     </div>
 </div>
 

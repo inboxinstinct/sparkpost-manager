@@ -25,13 +25,14 @@
                     <th>Subject Line</th>
                     <th style="text-align:center">Open Rate</th>
                     <th style="text-align:center">Click Rate</th>
+                    <th style="text-align:center">Sent</th>
                     <th style="text-align:center">See Details</th>
                 </tr>
             </thead>
             <tbody id="campaignsList">
                 <!-- Spinner Row -->
                 <tr id="loadingSpinner">
-                    <td colspan="5" style="text-align:center">
+                    <td colspan="6" style="text-align:center">
                         <div class="spinner-border" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
@@ -43,46 +44,51 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/campaigns')
-                .then(response => response.json())
-                .then(campaigns => {
-                    // Sort campaigns by createdAt in descending order
-                    campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                    const list = document.getElementById('campaignsList');
-                    // Remove the spinner row
-                    document.getElementById('loadingSpinner').remove();
+       document.addEventListener('DOMContentLoaded', function() {
+    fetch('/campaigns')
+        .then(response => response.json())
+        .then(campaigns => {
+            // Sort campaigns by createdAt in descending order
+            campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const list = document.getElementById('campaignsList');
+            // Remove the spinner row
+            document.getElementById('loadingSpinner').remove();
 
-                    campaigns.forEach(campaign => {
-                        const row = document.createElement('tr');
-                        const stats = campaign.stats || { opens: 0, clicks: 0, successfulDeliveries: 0 };
-                        //const successfulDeliveries = campaign.stats.successfulDeliveries || 0;
-                        let openRate = 'N/A';
-                        let clickRate = 'N/A';
+            campaigns.forEach(campaign => {
+                const row = document.createElement('tr');
+                const stats = campaign.stats || { opens: 0, clicks: 0, successfulDeliveries: 0 };
+                const delivered = stats.successfulDeliveries || 0;
+                let openRate = 'N/A';
+                let clickRate = 'N/A';
 
-                        if (stats.successfulDeliveries > 0) {
-                            openRate = ((stats.opens || 0) / stats.successfulDeliveries * 100).toFixed(2) + '%';
-                            clickRate = ((stats.clicks || 0) / stats.successfulDeliveries * 100).toFixed(2) + '%';
-                        }
+                if (delivered > 0) {
+                    openRate = ((stats.opens || 0) / delivered * 100).toFixed(2) + '%';
+                    clickRate = ((stats.clicks || 0) / delivered * 100).toFixed(2) + '%';
+                }
 
-                        row.innerHTML = `
-                            <td>${campaign.campaignId}</td>
-                            <td>${campaign.subject}</td>
-                            <td style="text-align:center">${openRate}</td>
-                            <td style="text-align:center">${clickRate}</td>
-                            <td style="text-align:center"><a href="campaign-details.html?campaignId=${campaign.campaignId}">View →</a></td>
-                        `;
-                        list.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading campaigns:', error);
-                    // Optionally handle the error by removing the spinner and showing an error message
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="5" style="text-align:center">Failed to load campaigns.</td>`;
-                    document.getElementById('campaignsList').appendChild(row);
-                });
+                const formattedDelivered = delivered.toLocaleString();
+
+                row.innerHTML = `
+                    <td>${campaign.campaignId}</td>
+                    <td>${campaign.subject}</td>
+                    <td style="text-align:center">${openRate}</td>
+                    <td style="text-align:center">${clickRate}</td>
+                    <td style="text-align:center">${formattedDelivered}</td>
+                    <td style="text-align:center"><a href="campaign-details.html?campaignId=${campaign.campaignId}">View →</a></td>
+                `;
+                list.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading campaigns:', error);
+            // Optionally handle the error by removing the spinner and showing an error message
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="6" style="text-align:center">Failed to load campaigns.</td>`;
+            document.getElementById('campaignsList').appendChild(row);
         });
+});
+
+
     </script>
 </body>
 </html>

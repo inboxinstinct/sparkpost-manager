@@ -145,8 +145,13 @@ function confirmSend() {
     const scheduledAtInput = document.getElementById('scheduledAt');
     const scheduledAt = scheduledAtInput.value ? new Date(scheduledAtInput.value) : new Date(Date.now() + 60000); // Current time + 1 minute
 
-    const tempo = document.getElementById('tempoCheckbox').checked;
-    const tempoRate = tempo ? parseInt(document.getElementById('tempoRate').value) : null;
+    //const tempo = document.getElementById('tempoCheckbox').checked;
+    const tempoRate = parseInt(document.getElementById('tempoRate').value);
+
+    if (isNaN(tempoRate) || tempoRate < 1 || tempoRate > 200) {
+        alert('Please enter a valid tempo rate between 1 and 200.');
+        return;
+    }
 
     fetch('/send-email', {
         method: 'POST',
@@ -167,9 +172,9 @@ function confirmSend() {
 
             const campaignIdStr = data.campaignId;
 
-            setTimeout(() => {
+            /* setTimeout(() => {
                 window.location.href = `campaign-details.html?campaignId=${campaignIdStr}`;
-            }, 5000);
+            }, 5000); */
 
             fetch('/save-campaign', {
                 method: 'POST',
@@ -186,7 +191,7 @@ function confirmSend() {
                     recipientListId: recipientListId,
                     isScheduleSent: false,
                     scheduledAt: scheduledAt,
-                    tempo: tempo,
+                    tempo: true,
                     tempoRate: tempoRate,
                 }),
             })
