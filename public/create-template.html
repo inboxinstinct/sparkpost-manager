@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Template</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/js/navbar.js"></script>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1d1d1f;
+        }
+        .create-template-container {
+            max-width: 1000px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 20px auto;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .btn-secondary, .btn-primary, .btn-success {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            background-color: #f5f5f7;
+            border-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .btn-primary {
+            background-color: #007aff;
+            border-color: #007aff;
+        }
+        .form-label {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body><br>
+    <div class="create-template-container">
+        <h1>Create Template</h1>
+        <button onclick="location.href='templates.html';" class="btn btn-secondary mb-4">Back to Templates</button>
+        <form id="templateForm">
+            <div class="form-group">
+                <label for="subject" class="form-label">Subject:</label>
+                <input type="text" id="subject" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="fromName" class="form-label">From Name:</label>
+                <input type="text" id="fromName" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="fromEmail" class="form-label">From Email:</label>
+                <input type="email" id="fromEmail" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="htmlContent" class="form-label">HTML Content:</label>
+                <textarea id="htmlContent" class="form-control" rows="10" required></textarea>
+            </div>
+            <div style="text-align:center">
+            <button type="submit" class="btn btn-primary" style="width:190px;">Save</button>
+            <a href="#" id="deployTemplate" class="btn btn-success" style="width:190px;margin-left:10px;">Save & Deploy</a>
+            </div>
+        </form>
+    </div>
+    <script src="js/create-template.js"></script>
+</body>
+</html>

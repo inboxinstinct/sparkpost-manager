@@ -10,6 +10,8 @@ const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 const app = express();
 const db = new sqlite3.Database('./users.db');
 const schedule = require('node-schedule');
+const Template = require('./models/Template');
+
 
 
 // {{ render_snippet( "unsubscribe" ) }}
@@ -244,10 +246,70 @@ app.post('/register', async (req, res) => {
     });
 });
 
+
+
+app.get('/custom-templates', requireAuth, async (req, res) => {
+    try {
+        const templates = await Template.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: templates });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.post('/custom-templates', requireAuth, async (req, res) => {
+    try {
+        const { subject, fromName, fromEmail, htmlContent } = req.body;
+        const template = new Template({ subject, fromName, fromEmail, htmlContent });
+        await template.save();
+        res.status(201).json({ success: true, data: template });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.get('/custom-templates/:customTemplateId', requireAuth, async (req, res) => {
+    try {
+        const { customTemplateId } = req.params;
+        const template = await Template.findById(customTemplateId);
+        res.status(200).json({ success: true, data: template });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+app.put('/custom-templates/:customTemplateId', requireAuth, async (req, res) => {
+    try {
+        const { customTemplateId } = req.params;
+        const { subject, fromName, fromEmail, htmlContent, createdAt } = req.body;
+        const template = await Template.findByIdAndUpdate(
+            customTemplateId,
+            { subject, fromName, fromEmail, htmlContent, createdAt },
+            { new: true }
+        );
+        res.status(200).json({ success: true, data: template });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
+app.delete('/custom-templates/:customTemplateId', requireAuth, async (req, res) => {
+    try {
+        const { customTemplateId } = req.params;
+        await Template.findByIdAndDelete(customTemplateId);
+        res.status(200).json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
+
 // Example in your Node.js server code
 app.post('/save-campaign', async (req, res) => {
     try {
-        const { campaignId, subject, fromName, fromEmail, htmlContent, templateId, recipientListId, isScheduleSent, scheduledAt, tempo, tempoRate } = req.body;
+        const { campaignId, subject, fromName, fromEmail, htmlContent, recipientListId, isScheduleSent, scheduledAt, tempo, tempoRate } = req.body;
 
         const campaign = new Campaign({
             campaignId,
@@ -255,14 +317,14 @@ app.post('/save-campaign', async (req, res) => {
             fromName,
             fromEmail,
             htmlContent,
-            templateId,
+            //templateId,
             recipientListId,
             isScheduleSent,
             scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
             tempo,
             tempoRate,
             tempoProgress: tempo ? 0 : null,
-            inProgress: tempo,
+            inProgress: false,
         });
 
         await campaign.save(); // Save the campaign to MongoDB

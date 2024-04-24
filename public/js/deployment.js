@@ -1,16 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
     const queryParams = new URLSearchParams(window.location.search);
     const templateId = queryParams.get('templateId');
+    const customTemplateId = queryParams.get('customTemplateId');
 
     if (templateId) {
         fetchEmailPreview(templateId);
-        fetchRecipientLists();
+    } else if (customTemplateId) {
+        fetchCustomEmailPreview(customTemplateId);
     } else {
         document.getElementById('emailSubject').textContent = 'No template selected';
         document.getElementById('emailFromName').textContent = '';
         document.getElementById('emailFromEmail').textContent = '';
     }
+
+    fetchRecipientLists();
 });
+
+
+async function fetchCustomEmailPreview(customTemplateId) {
+    const response = await fetch(`/custom-templates/${customTemplateId}`);
+    const data = await response.json();
+
+    if (data.success) {
+        const template = data.data;
+        const iframe = document.getElementById('emailPreviewFrame');
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(template.htmlContent);
+        iframe.contentWindow.document.close();
+
+        document.getElementById('emailSubject').textContent = template.subject;
+        document.getElementById('emailFromName').textContent = template.fromName;
+        document.getElementById('emailFromEmail').textContent = template.fromEmail;
+    } else {
+        document.getElementById('emailSubject').textContent = 'Failed to load preview.';
+    }
+}
+
+
 
 async function fetchEmailPreview(templateId) {
     const response = await fetch(`/template-preview/${templateId}`);
@@ -80,52 +106,6 @@ function createCampaignRecord(campaignDetails) {
     });
 }
 
-/* 
-function confirmSend() {
-    const recipientListId = document.getElementById('recipientList').value;
-    const templateId = new URLSearchParams(window.location.search).get('templateId');
-    const emailSubject = document.getElementById('emailSubject').textContent;
-    const emailFromName = document.getElementById('emailFromName').textContent;
-    const emailFromEmail = document.getElementById('emailFromEmail').textContent;
-    const iframe = document.getElementById('emailPreviewFrame');
-    const htmlContent = iframe.contentWindow.document.body.innerHTML; // Extract HTML content
-
-    fetch('/send-email', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            templateId,
-            recipientListId,
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Email sent successfully!');
-            $('#confirmationModal').modal('hide');
-            // After successful email send, post to campaigns to create a new record
-            createCampaignRecord({
-                subject: emailSubject,
-                fromName: emailFromName,
-                fromEmail: emailFromEmail,
-                // Assuming you can get these details or set initial values
-                htmlContent: htmlContent, // You might need to adjust this
-                stats: {
-                    opens: 0,
-                    clicks: 0,
-                    bounces: 0,
-                    successfulDeliveries: 0,
-                },
-            });
-        } else {
-            alert('Failed to send email.');
-        }
-    });
-}
- */
-
 function showPopup(popupId) {
     document.getElementById(popupId).style.display = 'flex';
 }
@@ -137,15 +117,15 @@ function closePopup(popupId) {
 function confirmSend() {
     const recipientListId = document.getElementById('recipientList').value;
     const templateId = new URLSearchParams(window.location.search).get('templateId');
+    const customTemplateId = new URLSearchParams(window.location.search).get('customTemplateId');
     const emailSubject = document.getElementById('emailSubject').textContent;
     const emailFromName = document.getElementById('emailFromName').textContent;
     const emailFromEmail = document.getElementById('emailFromEmail').textContent;
     const iframe = document.getElementById('emailPreviewFrame');
     const htmlContent = iframe.contentWindow.document.body.innerHTML;
     const scheduledAtInput = document.getElementById('scheduledAt');
-    const scheduledAt = scheduledAtInput.value ? new Date(scheduledAtInput.value) : new Date(Date.now() + 60000); // Current time + 1 minute
+    const scheduledAt = scheduledAtInput.value ? new Date(scheduledAtInput.value) : new Date(Date.now() + 60000);
 
-    //const tempo = document.getElementById('tempoCheckbox').checked;
     const tempoRate = parseInt(document.getElementById('tempoRate').value);
 
     if (isNaN(tempoRate) || tempoRate < 1 || tempoRate > 200) {
@@ -153,16 +133,27 @@ function confirmSend() {
         return;
     }
 
+    const requestBody = {
+        recipientListId,
+        scheduledAt: scheduledAt.toISOString(),
+    };
+
+    if (templateId) {
+        requestBody.templateId = templateId;
+    } else if (customTemplateId) {
+        requestBody.customTemplateId = customTemplateId;
+        requestBody.subject = emailSubject;
+        requestBody.fromName = emailFromName;
+        requestBody.fromEmail = emailFromEmail;
+        requestBody.htmlContent = htmlContent;
+    }
+
     fetch('/send-email', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            templateId,
-            recipientListId,
-            scheduledAt: scheduledAt.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
     })
     .then(response => response.json())
     .then(data => {
@@ -171,10 +162,6 @@ function confirmSend() {
             $('#confirmationModal').modal('hide');
 
             const campaignIdStr = data.campaignId;
-
-            /* setTimeout(() => {
-                window.location.href = `campaign-details.html?campaignId=${campaignIdStr}`;
-            }, 5000); */
 
             fetch('/save-campaign', {
                 method: 'POST',
@@ -187,7 +174,8 @@ function confirmSend() {
                     fromName: emailFromName,
                     fromEmail: emailFromEmail,
                     htmlContent: htmlContent,
-                    templateId: templateId,
+                    //templateId: templateId,
+                    //customTemplateId: customTemplateId,
                     recipientListId: recipientListId,
                     isScheduleSent: false,
                     scheduledAt: scheduledAt,
