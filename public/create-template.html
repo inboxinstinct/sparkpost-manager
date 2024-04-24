@@ -63,8 +63,11 @@
                 <input type="text" id="fromName" class="form-control" required>
             </div>
             <div class="form-group">
-                <label for="fromEmail" class="form-label">From Email:</label>
-                <input type="email" id="fromEmail" class="form-control" required>
+                <div class="form-group">
+                    <label for="fromEmail" class="form-label">From Email:</label>
+                    <input type="email" id="fromEmail" class="form-control" list="sendingDomainsList" required>
+                    <datalist id="sendingDomainsList"></datalist>
+                </div>
             </div>
             <div class="form-group">
                 <label for="htmlContent" class="form-label">HTML Content:</label>

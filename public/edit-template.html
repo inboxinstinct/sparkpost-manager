@@ -111,8 +111,10 @@
             </div>
             <div class="form-group">
                 <label for="fromEmail" class="form-label">From Email:</label>
-                <input type="email" id="fromEmail" class="form-control" required>
+                <input type="email" id="fromEmail" class="form-control" list="sendingDomainsList" required>
+                <datalist id="sendingDomainsList"></datalist>
             </div>
+            
             <div class="form-group">
                 <label for="htmlContent" class="form-label">HTML Content:</label>
                 <textarea id="htmlContent" class="form-control" rows="10" required></textarea>

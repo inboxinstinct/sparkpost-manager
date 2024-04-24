@@ -396,5 +396,16 @@ app.get('/templates', requireAuth, async (req, res) => {
     }
 });
 
+
+
+app.get('/sending-domains', requireAuth, async (req, res) => {
+    try {
+        const response = await client.sendingDomains.list();
+        res.status(200).json({ success: true, data: response.results });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

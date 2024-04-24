@@ -14,7 +14,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Failed to load template');
             }
         });
+
+    fetchSendingDomains();
 });
+
+function fetchSendingDomains() {
+    fetch('/sending-domains')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const sendingDomains = data.data;
+                const datalistElement = document.getElementById('sendingDomainsList');
+                sendingDomains.forEach(domain => {
+                    const option = document.createElement('option');
+                    const emailAddress = `mail@${domain.domain}`;
+                    option.value = emailAddress;
+                    datalistElement.appendChild(option);
+                });
+            } else {
+                console.error('Failed to load sending domains');
+            }
+        });
+}
+
 
 function saveTemplate() {
     const subject = document.getElementById('subject').value;
