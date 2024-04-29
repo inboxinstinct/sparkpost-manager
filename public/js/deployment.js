@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const queryParams = new URLSearchParams(window.location.search);
     const templateId = queryParams.get('templateId');
     const customTemplateId = queryParams.get('customTemplateId');
+    
+   // console.log('Send Preview Email button:', document.getElementById('sendPreviewEmail'));
+
 
     if (templateId) {
         fetchEmailPreview(templateId);
@@ -201,11 +204,61 @@ function confirmSend() {
 }
 
 
-document.getElementById('tempoCheckbox').addEventListener('change', function() {
+/* document.getElementById('tempoCheckbox').addEventListener('change', function() {
     const tempoRateContainer = document.getElementById('tempoRateContainer');
     if (this.checked) {
         tempoRateContainer.style.display = 'block';
     } else {
         tempoRateContainer.style.display = 'none';
     }
+}); */
+
+document.getElementById('sendPreviewEmail').addEventListener('click', function() {
+    console.log('Send Preview Email button clicked');
+  
+    const previewRecipients = document.getElementById('previewRecipients').value.split('\n').map(email => email.trim());
+    const emailSubject = document.getElementById('emailSubject').textContent;
+    const emailFromName = document.getElementById('emailFromName').textContent;
+    const emailFromEmail = document.getElementById('emailFromEmail').textContent;
+    const iframe = document.getElementById('emailPreviewFrame');
+    const htmlContent = iframe.contentWindow.document.body.innerHTML;
+  
+    sendPreviewEmail(emailFromName, emailFromEmail, emailSubject, htmlContent, previewRecipients);
 });
+
+
+async function sendPreviewEmail(fromName, fromEmail, subject, htmlContent, recipients) {
+    const recipientsArray = recipients.map(email => ({ address: { email } }));
+  
+    try {
+      console.log('Sending preview email with parameters:', fromName, fromEmail, subject, htmlContent, recipientsArray);
+      const response = await fetch('/test-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fromName,
+          fromEmail,
+          subject,
+          htmlContent,
+          recipients: recipientsArray,
+        }),
+      });
+  
+      if (response.ok) {
+        console.log('Preview email sent successfully');
+        alert('Preview email sent successfully!');
+      } else {
+        console.error('Failed to send preview email');
+        console.error('Response status:', response.status);
+        const errorText = await response.text();
+        console.error('Response text:', errorText);
+        alert(`Failed to send preview email. Please check the console for more details.\n\nError: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error sending preview email:', error);
+      alert('Failed to send preview email. Please check the console for more details.');
+    }
+  }
+  

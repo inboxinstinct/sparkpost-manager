@@ -424,6 +424,37 @@ async function sendEmail(templateId, recipientListId, campaignIdStr) {
     }
 }
 
+app.post('/test-email', async (req, res) => {
+
+    try {
+      const { fromName, fromEmail, subject, htmlContent, recipients } = req.body;
+      await testEmail(fromName, fromEmail, subject, htmlContent, recipients);
+      res.status(200).json({ success: true, message: 'Preview email sent successfully' });
+    } catch (error) {
+      console.error('Error sending preview email:', error);
+      res.status(500).json({ success: false, message: 'Failed to send preview email' });
+    }
+  });
+  
+  async function testEmail(fromName, fromEmail, subject, htmlContent, recipients) {
+    try {
+      await client.transmissions.send({
+        content: {
+          from: {
+            name: fromName,
+            email: fromEmail,
+          },
+          subject: `[Preview] ${subject}`,
+          html: htmlContent,
+        },
+        recipients: recipients,
+        campaign_id: `0`,
+      });
+    } catch (error) {
+      console.error('SparkPost API error:', error);
+      throw error;
+    }
+  }
 
 
 app.get('/templates', requireAuth, async (req, res) => {
