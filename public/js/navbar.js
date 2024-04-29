@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a class="nav-link" href="/index.html">Home</a>
                     <a class="nav-link" href="/templates.html">Templates</a>
                     <a class="nav-link" href="/campaigns.html">Campaigns</a>
+                    <a class="nav-link" href="/settings.html">Settings</a>
                 </div>
                 <div>
                     <span id="navbarGreeting" class="navbar-text mr-3"></span>

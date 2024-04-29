@@ -11,6 +11,8 @@ const app = express();
 const db = new sqlite3.Database('./users.db');
 const schedule = require('node-schedule');
 const Template = require('./models/Template');
+const Settings = require('./models/Settings');
+
 
 
 
@@ -118,6 +120,43 @@ app.get('/auth/userinfo', (req, res) => {
         res.status(401).json({ error: 'Not authenticated' });
     }
 });
+
+
+
+
+// Fetch settings
+app.get('/settings', async (req, res) => {
+    try {
+        const settings = await Settings.findOne();
+        res.json(settings || {});
+    } catch (error) {
+        console.error('Error fetching settings:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch settings' });
+    }
+});
+
+// Save settings
+app.post('/settings', async (req, res) => {
+    try {
+        const { customFooter, unsubscribeString } = req.body;
+        let settings = await Settings.findOne();
+
+        if (settings) {
+            settings.customFooter = customFooter;
+            settings.unsubscribeString = unsubscribeString;
+        } else {
+            settings = new Settings({ customFooter, unsubscribeString });
+        }
+
+        await settings.save();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error saving settings:', error);
+        res.status(500).json({ success: false, error: 'Failed to save settings' });
+    }
+});
+
+
 
 
 

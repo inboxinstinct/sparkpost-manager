@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Edit Template</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <script src="/js/navbar.js"></script>
+    
     <style>
-        /* Copy the styles from deployment.html */
         body {
             background-color: #f7f7f7;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -94,7 +96,75 @@
             font-weight: bold;
             margin-top: 15px;
         }
+        .editor-container {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .editor-toolbar {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+    }
+    .toolbar-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0px;
+    }
+    .editor-toolbar button {
+        margin-right: 5px;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 4px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .editor-toolbar button:hover {
+        background-color: #f0f0f0;
+    }
+    .editor-toolbar button i {
+        margin-right: 0;
+    }
+    .font-size-container,
+    .color-container {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+    }
+    .font-size-container input[type="number"],
+    .color-container input[type="text"] {
+        width: 60px;
+        margin-right: 5px;
+        padding: 5px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    .color-container label {
+        margin-right: 5px;
+        font-size: 14px;
+    }
+        .editor-toolbar .spacer {
+            flex-grow: 1;
+        }
+        .editor-content {
+            min-height: 200px;
+            padding: 30px;
+            outline: none;
+        }
+        .editor-content.show-guides table,
+        .editor-content.show-guides div {
+            border: 1px dashed #ccc;
+        }
     </style>
+    
 </head>
 <body><br>
     <div class="edit-template-container">
@@ -117,7 +187,42 @@
             
             <div class="form-group">
                 <label for="htmlContent" class="form-label">HTML Content:</label>
-                <textarea id="htmlContent" class="form-control" rows="10" required></textarea>
+                <div class="mb-3">
+                    <button id="addUnsubscribe" type="button" class="btn btn-secondary mr-2" style="padding: 5px 20px;">Add Unsubscribe</button>
+                    <button id="insertFooter" type="button" class="btn btn-secondary" style="padding: 5px 20px;">Insert Footer</button>
+                  </div>
+                <div class="editor-container">
+                    
+                    <div class="editor-toolbar">
+                        <div class="toolbar-row">
+                            <button type="button" id="toggleEditor">Edit Source</button>
+                            <button type="button" data-command="undo" title="Undo"><i class="fas fa-undo"></i></button>
+                            <button type="button" data-command="redo" title="Redo"><i class="fas fa-redo"></i></button>
+                            <button type="button" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                            <button type="button" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                            <button type="button" data-command="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                            <button type="button" data-command="strikeThrough" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                            <button type="button" data-command="justifyLeft" title="Align Left"><i class="fas fa-align-left"></i></button>
+                            <button type="button" data-command="justifyCenter" title="Align Center"><i class="fas fa-align-center"></i></button>
+                            <button type="button" data-command="justifyRight" title="Align Right"><i class="fas fa-align-right"></i></button>
+                            <button type="button" data-command="justifyFull" title="Justify"><i class="fas fa-align-justify"></i></button>
+                            <button type="button" data-command="insertUnorderedList" title="Unordered List"><i class="fas fa-list-ul"></i></button>
+                            <button type="button" data-command="insertOrderedList" title="Ordered List"><i class="fas fa-list-ol"></i></button>
+                            <button type="button" data-command="createLink" title="Insert Link"><i class="fas fa-link"></i></button>
+                            <button type="button" data-command="unlink" title="Remove Link"><i class="fas fa-unlink"></i></button>
+                            <button type="button" data-command="removeFormat" title="Remove Formatting"><i class="fas fa-eraser"></i></button>
+                            <button type="button" data-command="formatBlock" data-value="blockquote" title="Block Quote"><i class="fas fa-quote-right"></i></button>
+
+                            <button type="button" data-command="showGuides" title="Show Guides"><i class="fas fa-border-all"></i></button>
+  
+
+                        </div>
+
+                    </div>
+                    
+                    <div class="editor-content" contenteditable="true"></div>
+                    <textarea id="htmlContent" class="form-control" rows="30" style="display: none;"></textarea>
+                </div>
             </div>
             <div style="text-align:center">
             <button type="submit" class="btn btn-primary" style="width:190px;">Save</button>
