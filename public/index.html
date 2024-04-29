@@ -4,40 +4,92 @@
     <meta charset="UTF-8">
     <title>Email Campaign Manager</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-
-<script src="/js/navbar.js"></script>
-
-
+    <script src="/js/navbar.js"></script>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1d1d1f;
+        }
+        .container-wrapper {
+            max-width: 1000px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 20px auto;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        h5 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .about-container p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #777;
+            font-style: italic;
+        }
+        .new-container p {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 13px;
+            color: #2a2a2a;
+            font-style: italic;
+        }
+        .new-container {
+          max-width: 1000px;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>
-
     <script>
         // Immediately-invoked function to check user authentication status
         (function() {
-          fetch('/auth/check')
-            .then(response => response.json())
-            .then(data => {
-              if (!data.isAuthenticated) {
-                // Redirect to the login page if not authenticated
-                window.location.href = '/login';
-              }
-            })
-            .catch(error => console.error('Error checking auth status:', error));
+            fetch('/auth/check')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.isAuthenticated) {
+                        // Redirect to the login page if not authenticated
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => console.error('Error checking auth status:', error));
         })();
-      </script>
-      
+    </script>
+<br>
+    <div class="container-wrapper">
+        <div class="container" style="text-align:center;margin-bottom: -10px;">
+            <h1 style="padding-top:10px;">Welcome to Campaign Manager.</h1>
+            <p class="lead">Deploy emails or view statistics.</p>
+            <div class="text-center mt-4">
+                <a href="templates.html" class="btn btn-primary mr-2">Browse Templates</a>
+                <a href="campaigns.html" class="btn btn-primary mr-2">Browse Campaigns</a>
+            </div><br>
+        </div>
 
+      </div>
 
-<div class="container" style="text-align:center; padding-top: 2rem;">
-    <h1>Welcome to Campaign Manager.</h1>
-    <p class="lead">Deploy emails or view statistics.</p>
-    <div class="text-center mt-4">
-        <a href="templates.html" class="btn btn-primary mr-2">Browse Templates</a>
-        <a href="campaigns.html" class="btn btn-primary mr-2">Browse Campaigns</a>
+      <div class="new-container" style="padding-left: 30px; padding-right: 30px;padding-bottom: 8px;margin-top: -20px;">
+        <br>
+        <!--<h5 style="text-align: center;">About</h5>-->
+        <p>- This application is in early development, and many features may not work as expected.</p>
+        <p>- Sending a campaign without a schedule will result in it deploying (up to) 2 minutes later.</p>
+        <p>- You cannot view the details of a campaign until after it deploys.</p>
+        <p>- To handle load, all deployments are capped at 200 emails per minute.  (This is temporary)</p>
+        <p>- The "Add Unsubscribe" and "Insert Footer" buttons only work correctly on the visual editor. Using them when directly editing HTML source may result in visual bugs.</p>
+        <p>- This application will not prevent you from entering incorrect values, such as the From Email - be certain your entries are correct before deploying a campaign.</p>
     </div>
-</div>
-
+      
 
 </body>
 </html>
