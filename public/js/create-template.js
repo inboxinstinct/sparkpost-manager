@@ -1,6 +1,124 @@
 document.addEventListener('DOMContentLoaded', function() {
     fetchSendingDomains();
+    initializeEditor();
 });
+
+function initializeEditor() {
+    const editorContent = document.querySelector('.editor-content');
+    const htmlContent = document.getElementById('htmlContent');
+    const toggleEditorBtn = document.getElementById('toggleEditor');
+    const addUnsubscribeBtn = document.getElementById('addUnsubscribe');
+    const insertFooterBtn = document.getElementById('insertFooter');
+
+    editorContent.addEventListener('input', function() {
+        htmlContent.value = editorContent.innerHTML;
+    });
+
+    htmlContent.addEventListener('input', function() {
+        editorContent.innerHTML = htmlContent.value;
+    });
+
+    document.querySelectorAll('.editor-toolbar button').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const command = this.dataset.command;
+            const value = this.dataset.value || null;
+            if (command === 'createLink') {
+                const url = prompt('Enter the link URL');
+                document.execCommand(command, false, url);
+            } else if (command === 'showGuides') {
+                editorContent.classList.toggle('show-guides');
+            } else {
+                document.execCommand(command, false, value);
+                editorContent.focus();
+            }
+            htmlContent.value = editorContent.innerHTML;
+        });
+    });
+
+    toggleEditorBtn.addEventListener('click', function() {
+        if (htmlContent.style.display === 'none') {
+            editorContent.style.display = 'none';
+            htmlContent.style.display = 'block';
+            htmlContent.value = editorContent.innerHTML;
+            this.textContent = 'Visual Editor';
+        } else {
+            editorContent.style.display = 'block';
+            htmlContent.style.display = 'none';
+            editorContent.innerHTML = htmlContent.value;
+            this.textContent = 'Edit Source';
+        }
+    });
+
+    function insertHtmlAtCursor(html) {
+        const selection = window.getSelection();
+        if (selection.getRangeAt && selection.rangeCount) {
+            let range = selection.getRangeAt(0);
+            range.deleteContents();
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            const frag = document.createDocumentFragment();
+            let node, lastNode;
+            while ((node = div.firstChild)) {
+                lastNode = frag.appendChild(node);
+            }
+            range.insertNode(frag);
+            if (lastNode) {
+                range = range.cloneRange();
+                range.setStartAfter(lastNode);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            document.querySelector('.editor-content').focus();
+            document.getElementById('htmlContent').value = document.querySelector('.editor-content').innerHTML;
+        }
+    }
+
+    addUnsubscribeBtn.addEventListener('click', function() {
+        fetch('/settings')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Settings Data:', data);
+                if (data.unsubscribeString) {
+                    const unsubscribeLink = data.unsubscribeString;
+                    if (htmlContent.style.display === 'none') {
+                        insertHtmlAtCursor(unsubscribeLink);
+                    } else {
+                        htmlContent.value += unsubscribeLink;
+                    }
+                } else {
+                    console.error('Unsubscribe link not found in settings');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching settings:', error);
+            });
+    });
+
+    insertFooterBtn.addEventListener('click', function() {
+        fetch('/settings')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Settings Data:', data);
+                if (data.customFooter) {
+                    const footer = data.customFooter;
+                    if (htmlContent.style.display === 'none') {
+                        const editorContent = document.querySelector('.editor-content');
+                        editorContent.innerHTML += footer;
+                        document.getElementById('htmlContent').value = editorContent.innerHTML;
+                    } else {
+                        htmlContent.value += footer;
+                    }
+                } else {
+                    console.error('Custom footer not found in settings');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching settings:', error);
+            });
+    });
+}
 
 function fetchSendingDomains() {
     fetch('/sending-domains')
