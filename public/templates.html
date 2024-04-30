@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Email Templates</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <style>
         body {
             background-color: #f7f7f7;
@@ -12,6 +14,9 @@
         .table {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        .alternating-rows tr:nth-child(odd) {
+        background-color: #f2f2f2;
+}
     </style>
         <script>
             // Immediately-invoked function to check user authentication status
@@ -37,11 +42,11 @@
             <tr>
                 <th scope="col" style="text-align:center; width:10%;">Status</th>
                 <th scope="col" style="width:30%;">Subject Line</th>
-                <th scope="col" style="width:30%">Last Updated</th>
+                <th scope="col" style="width:30%">Last Updated  <i class="far fa-clock"></i></th>
                 <th scope="col" style="text-align:center; width:30%">Actions</th>
             </tr>
         </thead>
-        <tbody id="customTemplateList">
+        <tbody id="customTemplateList" class="alternating-rows">
             <!-- Custom templates will be listed here -->
         </tbody>
     </table>
@@ -61,7 +66,7 @@
                     <th scope="col" style="text-align:center;width:30%;">Actions</th>
                 </tr>
             </thead>
-            <tbody id="templateList">
+            <tbody id="templateList" class="alternating-rows">
                 <!-- Spinner Row -->
                 <tr id="loadingSpinner">
                     <td colspan="4" style="text-align:center">

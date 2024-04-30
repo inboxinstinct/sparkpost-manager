@@ -16,13 +16,14 @@ async function fetchCustomTemplates() {
 
         data.data.forEach(template => {
             const row = document.createElement('tr');
-            const createdAt = new Date(template.createdAt).toLocaleString();
+            const createdAt = new Date(template.createdAt);
+            const formattedDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()} @ ${createdAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
             const truncatedSubject = template.subject.length > 40 ? template.subject.slice(0, 36) + '...' : template.subject;
 
             row.innerHTML = `
                 <td style="text-align:center">✔</td>
                 <td>${truncatedSubject}</td>
-                <td >${createdAt}</td>
+                <td>${formattedDate}</td>
                 <td style="text-align:center">
                 <a href="edit-template.html?customTemplateId=${template._id}">Edit</a> |
                 <a href="#" onclick="deleteTemplate('${template._id}')">Delete</a> |
