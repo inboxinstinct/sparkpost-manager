@@ -9,6 +9,8 @@ function initializeEditor() {
     const toggleEditorBtn = document.getElementById('toggleEditor');
     const addUnsubscribeBtn = document.getElementById('addUnsubscribe');
     const insertFooterBtn = document.getElementById('insertFooter');
+    const insertHeaderBtn = document.getElementById('insertHeader');
+
 
     editorContent.addEventListener('input', function() {
         htmlContent.value = editorContent.innerHTML;
@@ -118,6 +120,37 @@ function initializeEditor() {
                 console.error('Error fetching settings:', error);
             });
     });
+
+    insertHeaderBtn.addEventListener('click', function() {
+        const previewText = prompt('Enter the preview text:');
+        if (previewText) {
+            fetch('/settings')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Settings Data:', data);
+                    if (data.unsubscribeString) {
+                        const unsubscribeLink = data.unsubscribeString;
+                        const invisibleSpacers = '<div style="display:none;">&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; </div>';
+                        const headerHtml = `<div style="display:none;">${previewText}</div>${invisibleSpacers}${unsubscribeLink}`;
+                        if (htmlContent.style.display === 'none') {
+                            const editorContent = document.querySelector('.editor-content');
+                            editorContent.innerHTML = headerHtml + editorContent.innerHTML;
+                            document.getElementById('htmlContent').value = editorContent.innerHTML;
+                        } else {
+                            htmlContent.value = headerHtml + htmlContent.value;
+                        }
+                    } else {
+                        console.error('Unsubscribe link not found in settings');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching settings:', error);
+                });
+        }
+    });
+
+
+
 }
 
 function fetchSendingDomains() {
