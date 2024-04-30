@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Campaigns</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <style>
         body {
             background-color: #f7f7f7;
@@ -11,6 +13,9 @@
         }
         .table {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .table tbody tr:nth-child(odd) {
+            background-color: #f2f2f2;
         }
     </style>
         <script>
@@ -36,6 +41,7 @@
             <thead class="thead-light">
                 <tr>
                     <th>ID</th>
+                    <th>Deploy Time <i class="far fa-clock"></i></th>
                     <th>Subject Line</th>
                     <th style="text-align:center">Open Rate</th>
                     <th style="text-align:center">Click Rate</th>
@@ -69,28 +75,36 @@
             document.getElementById('loadingSpinner').remove();
 
             campaigns.forEach(campaign => {
-                const row = document.createElement('tr');
-                const stats = campaign.stats || { opens: 0, clicks: 0, successfulDeliveries: 0 };
-                const delivered = stats.successfulDeliveries || 0;
-                let openRate = 'N/A';
-                let clickRate = 'N/A';
+                    const row = document.createElement('tr');
+                    const stats = campaign.stats || { opens: 0, clicks: 0, successfulDeliveries: 0 };
+                    const delivered = stats.successfulDeliveries || 0;
+                    let openRate = 'N/A';
+                    let clickRate = 'N/A';
 
-                if (delivered > 0) {
-                    openRate = ((stats.opens || 0) / delivered * 100).toFixed(2) + '%';
-                    clickRate = ((stats.clicks || 0) / delivered * 100).toFixed(2) + '%';
-                }
+                    if (delivered > 0) {
+                        openRate = ((stats.opens || 0) / delivered * 100).toFixed(2) + '%';
+                        clickRate = ((stats.clicks || 0) / delivered * 100).toFixed(2) + '%';
+                    }
 
-                const formattedDelivered = delivered.toLocaleString();
+                    const formattedDelivered = delivered.toLocaleString();
 
-                row.innerHTML = `
-                    <td>${campaign.campaignId}</td>
-                    <td>${campaign.subject}</td>
-                    <td style="text-align:center">${openRate}</td>
-                    <td style="text-align:center">${clickRate}</td>
-                    <td style="text-align:center">${formattedDelivered}</td>
-                    <td style="text-align:center"><a href="campaign-details.html?campaignId=${campaign.campaignId}">View →</a></td>
-                `;
-                list.appendChild(row);
+                    // Format the scheduledAt time
+                    const scheduledAt = campaign.scheduledAt ? new Date(campaign.scheduledAt) : null;
+                    const scheduledAtFormatted = scheduledAt ? `${scheduledAt.getMonth() + 1}/${scheduledAt.getDate()} @ ${scheduledAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : 'N/A';
+
+                    // Check if the deploy time is in the future
+                    const isDeployInFuture = scheduledAt && scheduledAt > new Date();
+
+                    row.innerHTML = `
+                        <td>${campaign.campaignId}</td>
+                        <td>${scheduledAtFormatted}</td>
+                        <td>${campaign.subject}</td>
+                        <td style="text-align:center">${openRate}</td>
+                        <td style="text-align:center">${clickRate}</td>
+                        <td style="text-align:center">${formattedDelivered}</td>
+                        <td style="text-align:center">${isDeployInFuture ? 'Not Ready' : `<a href="campaign-details.html?campaignId=${campaign.campaignId}">View →</a>`}</td>
+                    `;
+                    list.appendChild(row);
             });
         })
         .catch(error => {
