@@ -6,6 +6,21 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <script src="/js/navbar.js"></script>
 
+        <script>
+            // Immediately-invoked function to check user authentication status
+            (function() {
+                fetch('/auth/check')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.isAuthenticated) {
+                            // Redirect to the login page if not authenticated
+                            window.location.href = '/login';
+                        }
+                    })
+                    .catch(error => console.error('Error checking auth status:', error));
+            })();
+        </script>
+
  <style>
     body {
         background-color: #f7f7f7;

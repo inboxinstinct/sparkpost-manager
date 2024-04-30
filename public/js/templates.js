@@ -17,7 +17,7 @@ async function fetchCustomTemplates() {
         data.data.forEach(template => {
             const row = document.createElement('tr');
             const createdAt = new Date(template.createdAt).toLocaleString();
-            const truncatedSubject = template.subject.length > 40 ? template.subject.slice(0, 39) + '...' : template.subject;
+            const truncatedSubject = template.subject.length > 40 ? template.subject.slice(0, 36) + '...' : template.subject;
 
             row.innerHTML = `
                 <td style="text-align:center">✔</td>

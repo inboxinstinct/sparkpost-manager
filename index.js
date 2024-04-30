@@ -12,6 +12,9 @@ const db = new sqlite3.Database('./users.db');
 const schedule = require('node-schedule');
 const Template = require('./models/Template');
 const Settings = require('./models/Settings');
+const { requireAuth, requireAdmin } = require('./authMiddleware');
+const User = require('./models/User');
+
 
 
 
@@ -29,12 +32,6 @@ app.use(session({
     cookie: { secure: 'auto' }
 }));
 
-const requireAuth = (req, res, next) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    next();
-};
 
 const Counter = require('./models/Counter');
 const Campaign = require('./models/Campaign');
@@ -125,7 +122,7 @@ app.get('/auth/userinfo', (req, res) => {
 
 
 // Fetch settings
-app.get('/settings', async (req, res) => {
+app.get('/settings', requireAuth, async (req, res) => {
     try {
         const settings = await Settings.findOne();
         res.json(settings || {});
@@ -136,7 +133,7 @@ app.get('/settings', async (req, res) => {
 });
 
 // Save settings
-app.post('/settings', async (req, res) => {
+app.post('/settings', requireAuth, async (req, res) => {
     try {
         const { customFooter, unsubscribeString } = req.body;
         let settings = await Settings.findOne();
@@ -167,18 +164,21 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    // Handle login
     const { username, password } = req.body;
-    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
-        if (err) return res.status(500).send('Internal Server Error');
-        if (user && await bcrypt.compare(password, user.password)) {
-            req.session.userId = user.id;
-            req.session.username = user.username;
-            return res.redirect('/');
-        }
-        res.redirect('/login?error=invalid');
-    });
-});
+    try {
+      const user = await User.findOne({ username });
+      req.session.username = user.username;
+
+      if (user && await bcrypt.compare(password, user.password)) {
+        req.session.userId = user._id;
+        req.session.userRole = user.role;
+        return res.redirect('/');
+      }
+      res.redirect('/login?error=invalid');
+    } catch (err) {
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
 app.get('/logout', (req, res) => {
     // Handle logout
@@ -196,7 +196,7 @@ app.get('/navbar', (req, res) => {
 // Protect the main route
 app.get('/', requireAuth, (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
-});
+  });
 
 app.get('/template-preview/:templateId', requireAuth, async (req, res) => {
     try {
@@ -255,35 +255,90 @@ function arrayToCSV(data) {
 
 
 app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    
-    // Check if the username and password were provided
+    const { username, password, role } = req.body;
     if (!username || !password) {
-        return res.status(400).send('Username and password are required');
+      return res.status(400).send('Username and password are required');
     }
+    try {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(409).send('User already exists');
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = new User({ username, password: hashedPassword, role });
+      await user.save();
+      res.status(201).send('User created successfully');
+    } catch (err) {
+      res.status(500).send('Error saving the user');
+    }
+  });
+  
 
-    // Check if the username already exists
-    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, row) => {
-        if (err) {
-            return res.status(500).send('Error checking user existence');
-        }
+  app.get('/admin', requireAdmin, (req, res) => {
+    res.sendFile(__dirname + '/public/admin.html');
+  });
+  
+  app.get('/admin/users', requireAdmin, async (req, res) => {
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+  
+  app.post('/admin/users', requireAdmin, async (req, res) => {
+    try {
+      const { username, password, role } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = new User({ username, password: hashedPassword, role });
+      await user.save();
+      res.status(201).json({ success: true, message: 'User created successfully' });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+  
+  app.put('/admin/users/:userId', requireAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { username, password, role } = req.body;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      user.username = username;
+      if (password) {
+        user.password = await bcrypt.hash(password, 10);
+      }
+      user.role = role;
+      await user.save();
+      res.json({ success: true, message: 'User updated successfully' });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+  
+  app.delete('/admin/users/:userId', requireAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      await User.findByIdAndDelete(userId);
+      res.json({ success: true, message: 'User deleted successfully' });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
 
-        if (row) {
-            return res.status(409).send('User already exists');
-        }
-
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert the new user into the database
-        db.run('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
-            if (err) {
-                return res.status(500).send('Error saving the user');
-            }
-            res.status(201).send('User created successfully');
-        });
-    });
+  app.get('/auth/userinfo', (req, res) => {
+    if (req.session.userId && req.session.username) {
+        res.json({ username: req.session.username });
+    } else {
+        res.status(401).json({ error: 'Not authenticated' });
+    }
 });
+
+
+
 
 
 
@@ -476,6 +531,31 @@ app.get('/sending-domains', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+/*app.post('/create-admin', async (req, res) => {
+    if (adminCreated) {
+      return res.status(403).send('Admin account has already been created');
+    }
+  
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).send('Username and password are required');
+    }
+    try {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(409).send('User already exists');
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = new User({ username, password: hashedPassword, role: 'admin' });
+      await user.save();
+      adminCreated = true; // Set the flag to indicate that an admin account has been created
+      res.status(201).send('Admin user created successfully');
+    } catch (err) {
+      console.error('Error saving the admin user:', err);
+      res.status(500).send('Error saving the admin user');
+    }
+  });*/
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
