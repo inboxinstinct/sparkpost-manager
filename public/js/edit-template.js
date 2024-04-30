@@ -25,6 +25,8 @@ function initializeEditor() {
     const toggleEditorBtn = document.getElementById('toggleEditor');
     const addUnsubscribeBtn = document.getElementById('addUnsubscribe');
     const insertFooterBtn = document.getElementById('insertFooter');
+    const insertHeaderBtn = document.getElementById('insertHeader');
+
 
     // Load the template's HTML content into the editor
     editorContent.innerHTML = htmlContent.value;
@@ -167,6 +169,30 @@ function initializeEditor() {
             .catch(error => {
                 console.error('Error fetching settings:', error);
             });
+    });
+
+    insertHeaderBtn.addEventListener('click', function() {
+        const previewText = prompt('Enter the preview text:');
+        if (previewText) {
+            fetch('/settings')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Settings Data:', data);
+                    if (data.unsubscribeString) {
+                        const unsubscribeLink = data.unsubscribeString;
+                        const invisibleSpacers = '<div style="display:none;">&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; </div>';
+                        const headerHtml = `<div style="display:none;">${previewText}</div>${invisibleSpacers}${unsubscribeLink}`;
+                        const editorContent = document.querySelector('.editor-content');
+                        editorContent.innerHTML = headerHtml + editorContent.innerHTML;
+                        document.getElementById('htmlContent').value = editorContent.innerHTML;
+                    } else {
+                        console.error('Unsubscribe link not found in settings');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching settings:', error);
+                });
+        }
     });
 
     
