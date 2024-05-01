@@ -95,10 +95,15 @@
                     // Check if the deploy time is in the future
                     const isDeployInFuture = scheduledAt && scheduledAt > new Date();
 
+                    // Limit the subject line to 76 characters and append "..." if it's too long
+                    const truncatedSubject = campaign.subject.length > 76
+                        ? campaign.subject.slice(0, 73) + '...'
+                        : campaign.subject;
+
                     row.innerHTML = `
                         <td>${campaign.campaignId}</td>
                         <td>${scheduledAtFormatted}</td>
-                        <td>${campaign.subject}</td>
+                        <td>${truncatedSubject}</td>
                         <td style="text-align:center">${openRate}</td>
                         <td style="text-align:center">${clickRate}</td>
                         <td style="text-align:center">${formattedDelivered}</td>
