@@ -14,6 +14,8 @@ const Template = require('./models/Template');
 const Settings = require('./models/Settings');
 const { requireAuth, requireAdmin } = require('./authMiddleware');
 const User = require('./models/User');
+const segmentRoutes = require('./routes/segments');
+
 
 
 
@@ -192,6 +194,37 @@ app.get('/navbar', (req, res) => {
     res.sendFile(path.join(__dirname, 'navbar.html'));
 });
 
+app.use('/segments', segmentRoutes);
+
+
+app.get('/segment-builder', (req, res) => {
+  res.sendFile(__dirname + '/public/segmentBuilder.html');
+});
+/*
+app.get('/segment-edit/:id', async (req, res) => {
+  try {
+    const segment = await Segment.findById(req.params.id);
+    if (!segment) {
+      return res.status(404).json({ error: 'Segment not found' });
+    }
+    res.json(segment);
+  } catch (error) {
+    res.status(500).json({ error: error.toString() });
+  }
+});
+
+app.delete('/segments/:id', async (req, res) => {
+  try {
+    const segment = await Segment.findByIdAndDelete(req.params.id);
+    if (!segment) {
+      return res.status(404).json({ error: 'Segment not found' });
+    }
+    res.json({ message: 'Segment deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.toString() });
+  }
+}); 
+*/
 
 // Protect the main route
 app.get('/', requireAuth, (req, res) => {

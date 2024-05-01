@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
             #customNavbar {
                 background-color: #fff;
                 box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+                padding: 1rem 0;
             }
             #customNavbar .container {
                 display: flex;
@@ -16,30 +17,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 display: flex;
                 justify-content: center;
                 flex-grow: 1;
-                color: #f1f1f1
             }
-
-            #Campaigns {
-                border-left: 1px solid #dee2e6
-            }
-
-            #title1 {
-                padding-top: 20px;
-            }
-            
             #customNavbar .nav-link {
-                color: #343a40;
-                margin: 0 10px; /* Adjust spacing between links */
-            }
-            #customNavbar .container {
-                padding-top: 2rem;
+                color: #6c757d;
+                margin: 0 10px;
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s;
             }
             #customNavbar .nav-link:hover {
-                color: #000;
+                color: #007bff;
             }
             #customNavbar .btn-primary {
                 background-color: #007bff;
                 border-color: #007bff;
+                transition: background-color 0.2s, border-color 0.2s;
             }
             #customNavbar .btn-primary:hover {
                 background-color: #0056b3;
@@ -53,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a class="nav-link" href="/index.html">Home</a>
                     <a class="nav-link" href="/templates.html">Templates</a>
                     <a class="nav-link" href="/campaigns.html">Campaigns</a>
+                    <a class="nav-link" href="/segments.html">Segments</a>
                     <a class="nav-link" href="/settings.html">Settings</a>
                 </div>
                 <div>
