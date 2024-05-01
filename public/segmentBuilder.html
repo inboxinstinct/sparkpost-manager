@@ -48,6 +48,20 @@
         }
     </style>
     <script src="/js/navbar.js"></script>
+    <script>
+      // Immediately-invoked function to check user authentication status
+      (function() {
+          fetch('/auth/check')
+              .then(response => response.json())
+              .then(data => {
+                  if (!data.isAuthenticated) {
+                      // Redirect to the login page if not authenticated
+                      window.location.href = '/login';
+                  }
+              })
+              .catch(error => console.error('Error checking auth status:', error));
+      })();
+  </script>
   </head>
   <body><br>
     <div class="segment-builder-container mt-4">
