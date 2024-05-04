@@ -415,7 +415,8 @@
                         document.getElementById('campaignFrom').textContent = `${campaign.fromName || 'Unknown'} (${campaign.fromEmail || 'No Email'})`;
                         document.getElementById('campaignId').textContent = campaignId;
         
-                        const sentDate = new Date(campaign.createdAt);
+                        const sentDate = new Date(campaign.scheduledAt);
+
                         document.getElementById('campaignSent').textContent = sentDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
         
                         document.getElementById('openersCount').textContent = campaign.openers.length;
