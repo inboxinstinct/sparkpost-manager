@@ -101,8 +101,8 @@
                     const isDeployInFuture = scheduledAt && scheduledAt > new Date();
 
                     // Limit the subject line to 76 characters and append "..." if it's too long
-                    const truncatedSubject = campaign.subject.length > 76
-                        ? campaign.subject.slice(0, 72) + '...'
+                    const truncatedSubject = campaign.subject.length > 73
+                        ? campaign.subject.slice(0, 71) + '...'
                         : campaign.subject;
 
                     row.innerHTML = `
